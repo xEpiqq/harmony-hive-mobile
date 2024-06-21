@@ -135,27 +135,6 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
     };
   }, [user.uid, setIsLoading]);
 
-  const fetchDownloadURLs = useCallback(async () => {
-    if (selectedSong && selectedSong.files) {
-      const downloadURLs = await Promise.all(
-        selectedSong.files.map(async (file) => {
-          try {
-            const downloadURL = await storage().ref(file.url).getDownloadURL();
-            return { ...file, downloadURL };
-          } catch (error) {
-            console.error("Error getting download URL:", error);
-            return file;
-          }
-        })
-      );
-      setSelectedSong({ ...selectedSong, files: downloadURLs });
-    }
-  }, [selectedSong]);
-
-  useEffect(() => {
-    fetchDownloadURLs();
-  }, [fetchDownloadURLs]);
-
   const paginationDots = useMemo(
     () =>
       songs.map((_, index) => {
@@ -249,7 +228,7 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
       <View className="flex-1">
         {musicSelected && selectedSong ? (
           <View style={{ flex: 1 }} className="bg-white">
-            {selectedSong && selectedSong.files && (
+            {selectedSong && (
               <>
                 <TouchableOpacity
                   onPress={handleBackPress}
