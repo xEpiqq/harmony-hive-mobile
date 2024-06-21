@@ -140,7 +140,6 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
     };
   }, [user.uid, setIsLoading]);
 
-
   const fetchDownloadURLs = useCallback(async () => {
     if (selectedSong && selectedSong.files) {
       const downloadURLs = await Promise.all(
@@ -275,10 +274,7 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
                         style={{ width: 20, height: 20, opacity: 0.5 }}
                       />
                     </TouchableOpacity>
-                    <MusicSheets
-                      scrollX={scrollX}
-                      screenWidth={screenWidth}
-                    />
+                    <MusicSheets scrollX={scrollX} screenWidth={screenWidth} />
 
                     <View className="w-full h-20 flex justify-center bg-[#FFCE00] absolute b-0 bottom-0">
                       <AudioPlayer

@@ -1,10 +1,14 @@
-import { View, Text, TouchableOpacity, Image, FlatList, Animated } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  FlatList,
+  Animated,
+} from "react-native";
+import { useRef } from "react";
 
-
-export default function MusicSheets({
-  scrollX,
-  screenWidth,
-}) {
+export default function MusicSheets({ screenWidth, scrollX }) {
   return (
     <View className="-mt-16">
       <FlatList
