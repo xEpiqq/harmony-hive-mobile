@@ -30,7 +30,7 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
   const [songs, setSongs] = useState([]);
   const [selectedSong, setSelectedSong] = useState(null);
   const [choirName, setChoirName] = useState("");
-  const [player, setPlayer] = useState(null);
+  const [, setPlayer] = useState(null);
   const [lastOpened, setLastOpened] = useState({});
 
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -40,12 +40,9 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
       setSelectedSong(song);
       setMusicSelected(true);
       setShowBottomNav(false);
-      if (player) {
-        player.pause();
-      }
       updateLastOpenedDate(song.songId);
     },
-    [player, setShowBottomNav]
+    [setShowBottomNav]
   );
 
   const updateLastOpenedDate = useCallback(
