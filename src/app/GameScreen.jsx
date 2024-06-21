@@ -31,7 +31,6 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
   const [selectedSong, setSelectedSong] = useState(null);
   const [choirName, setChoirName] = useState("");
   const [player, setPlayer] = useState(null);
-  const [chatScreen, setChatScreen] = useState(false);
   const [lastOpened, setLastOpened] = useState({});
 
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -252,56 +251,50 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
       ) : null}
 
       <View className="flex-1">
-        {chatScreen ? (
-          <View></View>
-        ) : (
-          <>
-            {musicSelected && selectedSong ? (
-              <View style={{ flex: 1 }} className="bg-white">
-                {selectedSong && selectedSong.files && (
-                  <>
-                    <TouchableOpacity
-                      onPress={handleBackPress}
-                      style={{
-                        position: "absolute",
-                        top: 20,
-                        left: 10,
-                        zIndex: 1,
-                      }}
-                    >
-                      <Image
-                        source={require("../../public/grayarrow.png")}
-                        style={{ width: 20, height: 20, opacity: 0.5 }}
-                      />
-                    </TouchableOpacity>
-                    <MusicSheets scrollX={scrollX} screenWidth={screenWidth} />
-
-                    <View className="w-full h-20 flex justify-center bg-[#FFCE00] absolute b-0 bottom-0">
-                      <AudioPlayer
-                        // key={`${file.name}-${index}_audioplayer`}
-                        url="https://firebasestorage.googleapis.com/v0/b/harmonyhive-b4705.appspot.com/o/TUnrM8z359eWvkV6xnFY%2Fsongs%2F1rmeWWmcyiVwo0j4q399%2Faudio.mp3?alt=media&token=e9c82cee-2f73-4732-8eac-254737b0f16b" // Pass the download URL directly
-                      />
-                    </View>
-                  </>
-                )}
-              </View>
-            ) : (
+        {musicSelected && selectedSong ? (
+          <View style={{ flex: 1 }} className="bg-white">
+            {selectedSong && selectedSong.files && (
               <>
-                <Text className="bg-white font-thin">{choirName}</Text>
-                <MusicList
-                  selectedSong={selectedSong}
-                  songs={songs}
-                  scrollX={scrollX}
-                  handleSelectSong={handleSelectSong}
-                  lastOpened={lastOpened}
-                  formatDate={formatDate}
-                />
+                <TouchableOpacity
+                  onPress={handleBackPress}
+                  style={{
+                    position: "absolute",
+                    top: 20,
+                    left: 10,
+                    zIndex: 1,
+                  }}
+                >
+                  <Image
+                    source={require("../../public/grayarrow.png")}
+                    style={{ width: 20, height: 20, opacity: 0.5 }}
+                  />
+                </TouchableOpacity>
+                <MusicSheets scrollX={scrollX} screenWidth={screenWidth} />
 
-                <View className="flex-row justify-center p-4 bg-white">
-                  {paginationDots}
+                <View className="w-full h-20 flex justify-center bg-[#FFCE00] absolute b-0 bottom-0">
+                  <AudioPlayer
+                    // key={`${file.name}-${index}_audioplayer`}
+                    url="https://firebasestorage.googleapis.com/v0/b/harmonyhive-b4705.appspot.com/o/TUnrM8z359eWvkV6xnFY%2Fsongs%2F1rmeWWmcyiVwo0j4q399%2Faudio.mp3?alt=media&token=e9c82cee-2f73-4732-8eac-254737b0f16b" // Pass the download URL directly
+                  />
                 </View>
               </>
             )}
+          </View>
+        ) : (
+          <>
+            <Text className="bg-white font-thin">{choirName}</Text>
+            <MusicList
+              selectedSong={selectedSong}
+              songs={songs}
+              scrollX={scrollX}
+              handleSelectSong={handleSelectSong}
+              lastOpened={lastOpened}
+              formatDate={formatDate}
+            />
+
+            <View className="flex-row justify-center p-4 bg-white">
+              {paginationDots}
+            </View>
           </>
         )}
       </View>
