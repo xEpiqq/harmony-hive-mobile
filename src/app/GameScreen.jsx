@@ -30,7 +30,6 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
   const [songs, setSongs] = useState([]);
   const [selectedSong, setSelectedSong] = useState(null);
   const [choirName, setChoirName] = useState("");
-  const [, setPlayer] = useState(null);
   const [lastOpened, setLastOpened] = useState({});
 
   const scrollX = useRef(new Animated.Value(0)).current;
