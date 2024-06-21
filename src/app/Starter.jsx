@@ -392,4 +392,5 @@ function Starter() {
   return <View>{renderScreen()}</View>;
 }
 
+
 export default Starter;
