@@ -4,7 +4,6 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import Video from 'react-native-video';
 import Slider from '@react-native-community/slider';
 import { ActivityIndicator } from "react-native";
-import { Images } from '../../../public/index';
 
 const AudioPlayer = (props) => {
   const { url, style } = props;
@@ -75,10 +74,10 @@ const AudioPlayer = (props) => {
           ) : (
             <View style={styles.controlRow}>
               <TouchableOpacity onPress={togglePlay}>
-                <Image
+                {/* <Image
                   source={paused ? Images.playIcon : Images.pauseIcon}
                   style={styles.playPauseIcon}
-                />
+                /> */}
               </TouchableOpacity>
               <Slider
                 style={styles.slider}
