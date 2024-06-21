@@ -1,5 +1,4 @@
 import { Images } from "../../public/index";
-import { useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -9,23 +8,43 @@ import {
   FlatList,
 } from "react-native";
 
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+
 export default function MusicSheets({
   songs,
   handleSelectSong,
   lastOpened,
   formatDate,
   scrollX,
-  spinValue,
-  setSpinValue,
-  setMusicSelected,
   onViewableItemsChanged,
-  spin,
 }) {
   const viewabilityConfig = useMemo(
     () => ({
       itemVisiblePercentThreshold: 50,
     }),
     []
+  );
+
+  const spinValue = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 30000,
+        useNativeDriver: true,
+      }),
+      { iterations: -1 }
+    ).start();
+  }, [spinValue]);
+
+  const spin = useMemo(
+    () =>
+      spinValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: ["0deg", "7000deg"],
+      }),
+    [spinValue]
   );
 
   const renderItem = useCallback(

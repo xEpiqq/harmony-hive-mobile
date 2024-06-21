@@ -15,10 +15,8 @@ import {
   StatusBar,
   Animated,
   Dimensions,
-  FlatList,
   BackHandler,
 } from "react-native";
-import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFocusEffect } from "@react-navigation/native";
 import MusicSheets from "@/components/MusicSheets";
@@ -31,34 +29,12 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
   const [musicSelected, setMusicSelected] = useState(false);
   const [songs, setSongs] = useState([]);
   const [selectedSong, setSelectedSong] = useState(null);
-  const spinValue = useRef(new Animated.Value(0)).current;
   const [choirName, setChoirName] = useState("");
   const [player, setPlayer] = useState(null);
   const [chatScreen, setChatScreen] = useState(false);
-  const [choirId, setChoirId] = useState(null);
   const [lastOpened, setLastOpened] = useState({});
-  const [currentPage, setCurrentPage] = useState(0);
 
   const scrollX = useRef(new Animated.Value(0)).current;
-  const scrollViewRef = useRef(null);
-
-  const scrollToNextPage = useCallback(() => {
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollToOffset({
-        offset: screenWidth * (currentPage + 1),
-        animated: true,
-      });
-    }
-  }, [screenWidth, currentPage]);
-
-  const scrollToPrevPage = useCallback(() => {
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollToOffset({
-        offset: screenWidth * (currentPage - 1),
-        animated: true,
-      });
-    }
-  }, [screenWidth, currentPage]);
 
   const handleSelectSong = useCallback(
     (song) => {
@@ -112,7 +88,6 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
       .onSnapshot((userDocumentSnapshot) => {
         const userData = userDocumentSnapshot.data();
         const selectedChoir = userData?.choir_selected;
-        setChoirId(selectedChoir);
         setLastOpened(userData?.lastOpened || {});
 
         if (selectedChoir) {
@@ -165,25 +140,6 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
     };
   }, [user.uid, setIsLoading]);
 
-  useEffect(() => {
-    Animated.loop(
-      Animated.timing(spinValue, {
-        toValue: 1,
-        duration: 30000,
-        useNativeDriver: true,
-      }),
-      { iterations: -1 }
-    ).start();
-  }, [spinValue]);
-
-  const spin = useMemo(
-    () =>
-      spinValue.interpolate({
-        inputRange: [0, 1],
-        outputRange: ["0deg", "7000deg"],
-      }),
-    [spinValue]
-  );
 
   const fetchDownloadURLs = useCallback(async () => {
     if (selectedSong && selectedSong.files) {
@@ -205,12 +161,6 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
   useEffect(() => {
     fetchDownloadURLs();
   }, [fetchDownloadURLs]);
-
-  const onViewableItemsChanged = useCallback(({ viewableItems }) => {
-    if (viewableItems.length > 0) {
-      setCurrentPage(viewableItems[0].index);
-    }
-  }, []);
 
   const paginationDots = useMemo(
     () =>
@@ -326,13 +276,8 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
                       />
                     </TouchableOpacity>
                     <MusicSheets
-                      songs={selectedSong.files}
                       scrollX={scrollX}
-                      spinValue={spinValue}
                       screenWidth={screenWidth}
-                      setMusicSelected={setMusicSelected}
-                      onViewableItemsChanged={onViewableItemsChanged}
-                      spin={spin}
                     />
 
                     <View className="w-full h-20 flex justify-center bg-[#FFCE00] absolute b-0 bottom-0">
@@ -349,14 +294,11 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
                 <Text className="bg-white font-thin">{choirName}</Text>
                 <MusicList
                   selectedSong={selectedSong}
-                  setSelectedSong={setSelectedSong}
                   songs={songs}
                   scrollX={scrollX}
                   handleSelectSong={handleSelectSong}
                   lastOpened={lastOpened}
-                  onViewableItemsChanged={onViewableItemsChanged}
                   formatDate={formatDate}
-                  spin={spin}
                 />
 
                 <View className="flex-row justify-center p-4 bg-white">

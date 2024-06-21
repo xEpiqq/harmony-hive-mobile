@@ -2,23 +2,12 @@ import { View, Text, TouchableOpacity, Image, FlatList, Animated } from "react-n
 
 
 export default function MusicSheets({
-  songs,
-  handleSelectSong,
-  lastOpened,
-  formatDate,
   scrollX,
-  spinValue,
-  setSpinValue,
-  setMusicSelected,
-  onViewableItemsChanged,
-  spin,
-  scrollViewRef,
   screenWidth,
 }) {
   return (
     <View className="-mt-16">
       <FlatList
-        ref={scrollViewRef}
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
