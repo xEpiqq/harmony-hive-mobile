@@ -84,7 +84,7 @@ export default function Page() {
                 
                 return <View style={iconStyle}><Image source={iconSource} style={{ width: size + 10, height: size + 10 }} /></View>;
               },
-              tabBarStyle: { height: 80, display: showBottomNav ? null : 'none', paddingTop: 10 },
+              tabBarStyle: { height: 90, display: showBottomNav ? null : 'none', paddingTop: 10 },
             })}
           >
             <Tab.Screen name="Game">
