@@ -3,10 +3,9 @@ import React, {
   useEffect,
   useRef,
   useCallback,
+  useContext,
   useMemo,
 } from "react";
-import firestore from "@react-native-firebase/firestore";
-import storage from "@react-native-firebase/storage";
 import {
   View,
   Text,
@@ -23,48 +22,16 @@ import MusicSheets from "@/components/MusicSheets";
 import AudioPlayer from "@/components/AudioPlayer";
 import MusicList from "@/components/MusicList";
 
-const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
+import { ChoirContext } from "@/contexts/ChoirContext";
+import { StateContext } from "@/contexts/StateContext";
+
+const GameScreen = ({ setIsLoading, setShowBottomNav }) => {
   const { width: screenWidth } = Dimensions.get("window");
 
-  const [musicSelected, setMusicSelected] = useState(false);
-  const [songs, setSongs] = useState([]);
-  const [selectedSong, setSelectedSong] = useState(null);
-  const [choirName, setChoirName] = useState("");
-  const [lastOpened, setLastOpened] = useState({});
+  const choir = useContext(ChoirContext);
+  const state = useContext(StateContext);
 
   const scrollX = useRef(new Animated.Value(0)).current;
-
-  const handleSelectSong = useCallback(
-    (song) => {
-      setSelectedSong(song);
-      setMusicSelected(true);
-      setShowBottomNav(false);
-      updateLastOpenedDate(song.songId);
-    },
-    [setShowBottomNav]
-  );
-
-  const updateLastOpenedDate = useCallback(
-    (songId) => {
-      const currentDate = new Date().toISOString();
-      firestore()
-        .collection("users")
-        .doc(user.uid)
-        .update({
-          [`lastOpened.${songId}`]: currentDate,
-        })
-        .then(() => {
-          setLastOpened((prevState) => ({
-            ...prevState,
-            [songId]: currentDate,
-          }));
-        })
-        .catch((error) => {
-          console.error("Error updating last opened date:", error);
-        });
-    },
-    [user.uid]
-  );
 
   const formatDate = useCallback((dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
@@ -72,72 +39,13 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
   }, []);
 
   useEffect(() => {
-    let userSubscriberUnsubscribe = () => {};
-    let choirSubscriberUnsubscribe = () => {};
-
-    setIsLoading(true);
-
-    const userSubscriber = firestore()
-      .collection("users")
-      .doc(user.uid)
-      .onSnapshot((userDocumentSnapshot) => {
-        const userData = userDocumentSnapshot.data();
-        const selectedChoir = userData?.choir_selected;
-        setLastOpened(userData?.lastOpened || {});
-
-        if (selectedChoir) {
-          firestore()
-            .collection("choirs")
-            .doc(selectedChoir)
-            .get()
-            .then((choirDoc) => {
-              if (choirDoc.exists) {
-                const choirData = choirDoc.data();
-                setChoirName(choirData.name);
-
-                const choirSubscriber = firestore()
-                  .collection("choirs")
-                  .doc(selectedChoir)
-                  .collection("songs")
-                  .onSnapshot((snapshot) => {
-                    const songsData = snapshot.docs.map((doc) => ({
-                      songId: doc.id,
-                      name: doc.data().name,
-                      files: doc.data().files || [],
-                    }));
-                    setSongs(songsData);
-                    setIsLoading(false);
-                  });
-
-                choirSubscriberUnsubscribe = choirSubscriber;
-                setIsLoading(false);
-              } else {
-                setChoirName("No choir found");
-                setIsLoading(false);
-              }
-            })
-            .catch((error) => {
-              console.error("Error fetching choir details:", error);
-              setChoirName("Error fetching choir");
-              setIsLoading(false);
-            });
-        } else {
-          setChoirName("No choir selected");
-          setIsLoading(false);
-        }
-      });
-
-    userSubscriberUnsubscribe = userSubscriber;
-
-    return () => {
-      userSubscriberUnsubscribe();
-      choirSubscriberUnsubscribe();
-    };
-  }, [user.uid, setIsLoading]);
+    setIsLoading(false);
+    state.setSongId(undefined);
+  }, []);
 
   const paginationDots = useMemo(
     () =>
-      songs.map((_, index) => {
+      choir.songs.map((_, index) => {
         const inputRange = [
           (index - 1) * screenWidth,
           index * screenWidth,
@@ -162,18 +70,17 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
           />
         );
       }),
-    [scrollX, songs]
+    [scrollX, choir.songs]
   );
 
   const handleBackPress = useCallback(() => {
-    if (musicSelected) {
-      setMusicSelected(false);
-      setSelectedSong(null);
+    if (state.songId) {
+      state.setSongId(undefined);
       setShowBottomNav(true);
       return true;
     }
     return false;
-  }, [musicSelected, setShowBottomNav]);
+  }, [state.songId, setShowBottomNav]);
 
   useFocusEffect(
     useCallback(() => {
@@ -197,7 +104,7 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
         <StatusBar barStyle="light-content" backgroundColor="#FFCE00" />
       </View>
 
-      {!musicSelected && selectedSong ? (
+      {!state.songId ? (
         <>
           <View className="flex-row justify-between px-4 py-3 items-center bg-[#FFCE00]">
             <View className="flex-row items-center">
@@ -226,9 +133,9 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
       ) : null}
 
       <View className="flex-1">
-        {musicSelected && selectedSong ? (
+        {state.songId ? (
           <View style={{ flex: 1 }} className="bg-white">
-            {selectedSong && (
+            {true && (
               <>
                 <TouchableOpacity
                   onPress={handleBackPress}
@@ -257,15 +164,8 @@ const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
           </View>
         ) : (
           <>
-            <Text className="bg-white font-thin">{choirName}</Text>
-            <MusicList
-              selectedSong={selectedSong}
-              songs={songs}
-              scrollX={scrollX}
-              handleSelectSong={handleSelectSong}
-              lastOpened={lastOpened}
-              formatDate={formatDate}
-            />
+            <Text className="bg-white font-thin">{choir.choirName}</Text>
+            <MusicList scrollX={scrollX} formatDate={formatDate} />
 
             <View className="flex-row justify-center p-4 bg-white">
               {paginationDots}
