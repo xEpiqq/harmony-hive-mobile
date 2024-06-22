@@ -11,101 +11,24 @@ import auth from "@react-native-firebase/auth";
 import firestore from "@react-native-firebase/firestore";
 
 import { UserContext } from "@/contexts/UserContext";
+import { StateContext } from "@/contexts/StateContext";
 
 function Profile() {
   const user = useContext(UserContext);
-  const [userData, setUserData] = useState(null);
-  const [choirNames, setChoirNames] = useState([]);
-  const [selectedChoir, setSelectedChoir] = useState(null);
+  const state = useContext(StateContext);
   const [newChoirCode, setNewChoirCode] = useState("");
   const [joinChoirError, setJoinChoirError] = useState("");
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const userDoc = await firestore()
-          .collection("users")
-          .doc(user.uid)
-          .get();
-        if (userDoc.exists) {
-          const data = userDoc.data();
-          setUserData(data);
-          setSelectedChoir(data.choir_selected);
-        }
-      } catch (error) {
-        console.log("Error fetching user data:", error);
-      }
-    };
-
-    fetchUserData();
-  }, [user.uid]);
-
-  useEffect(() => {
-    const fetchChoirNames = async () => {
-      if (userData && userData.choirs_joined) {
-        const choirPromises = userData.choirs_joined.map(async (choirId) => {
-          const choirDoc = await firestore()
-            .collection("choirs")
-            .doc(choirId)
-            .get();
-          if (choirDoc.exists) {
-            return {
-              id: choirDoc.id,
-              name: choirDoc.data().name,
-            };
-          }
-          return null;
-        });
-
-        const choirs = await Promise.all(choirPromises);
-        setChoirNames(choirs.filter((choir) => choir !== null));
-      }
-    };
-
-    fetchChoirNames();
-  }, [userData]);
-
   const handleChoirSelect = async (choirId) => {
-    try {
-      await firestore().collection("users").doc(user.uid).update({
-        choir_selected: choirId,
-      });
-      setSelectedChoir(choirId);
-    } catch (error) {
-      console.log("Error updating selected choir:", error);
-    }
+    state.setChoirId(choirId);
   };
 
-  const joinChoir = async () => {
-    try {
-      const choirSnapshot = await firestore()
-        .collection("choirs")
-        .where("code", "==", newChoirCode)
-        .get();
-      if (choirSnapshot.empty) {
-        setJoinChoirError("Invalid choir code");
-        return;
-      }
-
-      const choirDoc = choirSnapshot.docs[0];
-      const choirId = choirDoc.id;
-
-      await firestore()
-        .collection("users")
-        .doc(user.uid)
-        .update({
-          choirs_joined: firestore.FieldValue.arrayUnion(choirId),
-        });
-
-      setNewChoirCode("");
-      setJoinChoirError("");
-      setUserData((prevData) => ({
-        ...prevData,
-        choirs_joined: [...prevData.choirs_joined, choirId],
-      }));
-    } catch (error) {
-      console.log("Error joining choir:", error);
-      setJoinChoirError("Error joining choir");
+  const handleJoinChoir = async () => {
+    const joinChoirResponse = await user.joinChoir(newChoirCode);
+    setNewChoirCode("");
+    if (joinChoirResponse) {
+      setJoinChoirError(joinChoirResponse.message);
+      return;
     }
   };
 
@@ -117,7 +40,7 @@ function Profile() {
         paddingVertical: 8,
         borderBottomWidth: 1,
         borderBottomColor: "#e5e7eb",
-        backgroundColor: item.id === selectedChoir ? "#e0f2fe" : "transparent",
+        backgroundColor: item.id === state.choirId ? "#e0f2fe" : "transparent",
       }}
     >
       <Text style={{ color: "#1f2937" }}>{item.name}</Text>
@@ -150,9 +73,9 @@ function Profile() {
         >
           Choirs
         </Text>
-        {choirNames.length > 0 ? (
+        {user.choirsJoined.length > 0 ? (
           <FlatList
-            data={choirNames}
+            data={user.choirsJoined}
             renderItem={renderChoirItem}
             keyExtractor={(item) => item.id}
           />
@@ -193,7 +116,7 @@ function Profile() {
           </Text>
         ) : null}
         <TouchableOpacity
-          onPress={joinChoir}
+          onPress={handleJoinChoir}
           style={{
             backgroundColor: "#3b82f6",
             paddingVertical: 12,

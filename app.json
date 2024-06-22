@@ -17,7 +17,7 @@
     "name": "Harmony Hive",
     "scheme": "acme",
     "userInterfaceStyle": "automatic",
-    "orientation": "default",
+    "orientation": "portrait",
     "icon": "./public/icon.png",
     "web": {
       "output": "static",
