@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 
 import firestore from "@react-native-firebase/firestore";
-import { fi } from "date-fns/locale";
 
 export default function useChoir(choirId) {
   const [songs, setSongs] = useState([]);

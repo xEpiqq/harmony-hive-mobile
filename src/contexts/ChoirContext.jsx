@@ -7,10 +7,9 @@ import useChoir from "@/lib/choir";
 export const ChoirContext = createContext({ songs: [] });
 
 export default function ChoirProvider({ children }) {
-  const { choirId, setChoirId } = useContext(StateContext);
+  const { choirId } = useContext(StateContext);
 
   const choir = useChoir(choirId);
-  console.log("the choir id is: " + choirId);
 
   return (
     <ChoirContext.Provider value={choir}>{children}</ChoirContext.Provider>
