@@ -48,7 +48,9 @@ function Starter() {
   const [login, setLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(true);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(true);
   const [onboardingCode, setOnboardingCode] = useState('');
   const [onboardError, setOnboardError] = useState('');
   const [createAccountError, setCreateAccountError] = useState('');
@@ -63,8 +65,6 @@ function Starter() {
   const [resetError, setResetError] = useState('');
   const openModal = () => setIsModalVisible(true);
   const closeModal = () => setIsModalVisible(false);
-    
-
 
   const nextScreen = () => setCurrentScreen(currentScreen + 1);
   const prevScreen = () => currentScreen > 0 && setCurrentScreen(currentScreen - 1);
@@ -113,6 +113,11 @@ function Starter() {
   };
 
   const createUserEmailPass = async () => {
+    if (password !== confirmPassword) {
+      setCreateAccountError('Passwords do not match!');
+      return;
+    }
+
     try {
       const userCredential = await auth().createUserWithEmailAndPassword(username, password);
       console.log('User account created & signed in!');
@@ -211,7 +216,6 @@ function Starter() {
     }
     setResetEmail('');
   };
-  
 
   useEffect(() => {
     const backAction = () => {
@@ -233,12 +237,11 @@ function Starter() {
         return true;
       }
     };
-  
+
     const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
-  
+
     return () => backHandler.remove();
   }, [currentScreen]);
-  
 
   const renderScreen = () => {
     switch (currentScreen) {
@@ -298,57 +301,81 @@ function Starter() {
             <ActionButton text="CONTINUE" onPress={codeEntered} disabled={!onboardingCode} />
           </View>
         );
-        case screens.CREATE_ACCOUNT:
-          return (
-            <View className="h-full w-full bg-white flex items-center">
-              <View className="w-full px-4 flex justify-between flex-col h-full">
-                <TouchableOpacity onPress={prevScreen} className="flex items-center absolute left-2 top-3">
-                  <Image className="h-[15px] w-[18px]" source={require('../../public/grayarrow.png')} />
-                </TouchableOpacity>
-                <View className="flex gap-2 mt-12">
-                  <View className="flex flex-row items-center justify-center relative mb-4 mt-16">
-                    <Text className="text-lg font-bold flex items-center justify-center text-gray-400">Joining {choirJoinName}... create an account</Text>
-                  </View>
-                  <InputField placeholder="Email Address" value={username} onChangeText={setUsername} />
-                  <View className="bg-[#F7F7F7] flex flex-row items-center justify-between rounded-b-xl border-gray-300 rounded-xl">
-                    <TextInput
-                      className="p-2 pl-4 bg-[#F7F7F7] rounded-xl text-lg text-gray-700"
-                      placeholder="Password"
-                      onChangeText={setPassword}
-                      value={password}
-                      secureTextEntry={passwordVisible}
-                      placeholderTextColor="rgba(0, 0, 0, 0.3)"
-                      autoCapitalize="none"
+      case screens.CREATE_ACCOUNT:
+        return (
+          <View className="h-full w-full bg-white flex items-center">
+            <View className="w-full px-4 flex justify-between flex-col h-full">
+              <TouchableOpacity onPress={prevScreen} className="flex items-center absolute left-2 top-3">
+                <Image className="h-[15px] w-[18px]" source={require('../../public/grayarrow.png')} />
+              </TouchableOpacity>
+              <View className="flex gap-2 mt-32">
+                <Text className="text-md font-bold flex items-center justify-center text-gray-400 mb-3 ml-2">
+                  Create an account to join <Text className="text-[#FFCE00]">{choirJoinName}</Text>
+                </Text>
+                <View className="bg-[#F7F7F7] flex flex-row items-center justify-between rounded-b-xl border-gray-300 rounded-xl">
+                  <TextInput
+                    className="p-2 pl-4 bg-[#F7F7F7] rounded-xl text-lg text-gray-700"
+                    placeholder="Email Address"
+                    onChangeText={setUsername}
+                    value={username}
+                    placeholderTextColor="rgba(0, 0, 0, 0.3)"
+                    autoCapitalize="none"
+                  />
+                </View>
+                <View className="bg-[#F7F7F7] flex flex-row items-center justify-between rounded-b-xl border-gray-300 rounded-xl">
+                  <TextInput
+                    className="p-2 pl-4 bg-[#F7F7F7] rounded-xl text-lg text-gray-700"
+                    placeholder="Password"
+                    onChangeText={setPassword}
+                    value={password}
+                    secureTextEntry={passwordVisible}
+                    placeholderTextColor="rgba(0, 0, 0, 0.3)"
+                    autoCapitalize="none"
+                  />
+                  <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
+                    <Image
+                      className="w-6 h-6 mr-3 opacity-40"
+                      source={passwordVisible ? require('../../public/password_eye.png') : require('../../public/password_eye_strike.png')}
                     />
-                    <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
-                      <Image
-                        className="w-6 h-6 mr-3 opacity-40"
-                        source={passwordVisible ? require('../../public/password_eye.png') : require('../../public/password_eye_strike.png')}
-                      />
-                    </TouchableOpacity>
-                  </View>
-                  {createAccountError && <Text className="mt-4 text-red-500">{createAccountError}</Text>}
-                  <ActionButton text="CREATE ACCOUNT" onPress={createUserEmailPass} disabled={!username || !password} />
-                  <Text className="font-bold text-center mb-4 text-[#FFCE00] mt-4 text-lg">FORGOT PASSWORD</Text>
+                  </TouchableOpacity>
                 </View>
-                <View>
-                  <View className="flex flex-row justify-between mb-4 gap-x-4">
-                    <TouchableOpacity
-                      className="mt-4 gap-x-1 h-12 flex flex-row justify-center items-center border flex-1 rounded-xl border-b-4 bg-white border-slate-300"
-                      onPress={onGoogleButtonPress}
-                    >
-                      <Image className="h-6 w-6" source={require('../../public/google.png')} />
-                      <Text className="text-gray-500 text-center font-bold text-lg flex items-center justify-center">GOOGLE</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <Text className="text-center text-sm text-gray-500 mb-4">
-                    By signing in to Harmony Hive, you agree to our Terms and Privacy Policy.
-                  </Text>
+                <View className="bg-[#F7F7F7] flex flex-row items-center justify-between rounded-b-xl border-gray-300 rounded-xl">
+                  <TextInput
+                    className="p-2 pl-4 bg-[#F7F7F7] rounded-xl text-lg text-gray-700"
+                    placeholder="Confirm Password"
+                    onChangeText={setConfirmPassword}
+                    value={confirmPassword}
+                    secureTextEntry={confirmPasswordVisible}
+                    placeholderTextColor="rgba(0, 0, 0, 0.3)"
+                    autoCapitalize="none"
+                  />
+                  <TouchableOpacity onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
+                    <Image
+                      className="w-6 h-6 mr-3 opacity-40"
+                      source={confirmPasswordVisible ? require('../../public/password_eye.png') : require('../../public/password_eye_strike.png')}
+                    />
+                  </TouchableOpacity>
                 </View>
+                {createAccountError && <Text className="mt-4 text-red-500">{createAccountError}</Text>}
+                <ActionButton text="CREATE ACCOUNT" onPress={createUserEmailPass} disabled={!username || !password || !confirmPassword} />
+              </View>
+              <View>
+                <View className="flex flex-row justify-between mb-4 gap-x-4">
+                  <TouchableOpacity
+                    className="mt-4 gap-x-1 h-12 flex flex-row justify-center items-center border flex-1 rounded-xl border-b-4 bg-white border-slate-300"
+                    onPress={onGoogleButtonPress}
+                  >
+                    <Image className="h-6 w-6" source={require('../../public/google.png')} />
+                    <Text className="text-gray-500 text-center font-bold text-lg flex items-center justify-center">GOOGLE</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text className="text-center text-sm text-gray-500 mb-4">
+                  By signing in to Harmony Hive, you agree to our Terms and Privacy Policy.
+                </Text>
               </View>
             </View>
-          );
-        
+          </View>
+        );
       case screens.JOIN_CHOIR:
         return (
           <View className="flex h-full bg-white items-center justify-between px-4">
@@ -367,20 +394,19 @@ function Starter() {
           </View>
         );
       case screens.LOGIN:
-          return (
-            <View className="h-full w-full bg-white flex items-center">
-
-              <Modal
-                animationType="slide"
-                transparent={false}
-                visible={isModalVisible}
-                onRequestClose={closeModal}
-              >
-                <TouchableOpacity onPress={closeModal} className="fixed top-0 left-0 w-10 h-10 flex items-center justify-center">
-                  <Text className="text-blue-500 mt-4 fixedbg-black text-xl">X</Text>
-                </TouchableOpacity>
-                <View className="flex-1 mt-44 items-center">
-                  <View>
+        return (
+          <View className="h-full w-full bg-white flex items-center">
+            <Modal
+              animationType="slide"
+              transparent={false}
+              visible={isModalVisible}
+              onRequestClose={closeModal}
+            >
+              <TouchableOpacity onPress={closeModal} className="fixed top-0 left-0 w-10 h-10 flex items-center justify-center">
+                <Text className="text-blue-500 mt-4 fixedbg-black text-xl">X</Text>
+              </TouchableOpacity>
+              <View className="flex-1 mt-44 items-center">
+                <View>
                   <Text className="text-xl mb-4">Reset Password</Text>
                   <InputField
                     placeholder="Enter your email"
@@ -388,96 +414,84 @@ function Starter() {
                     onChangeText={setResetEmail}
                   />
                   {resetError ? <Text className="text-red-500 mt-2">{resetError}</Text> : null}
-
                 </View>
+              </View>
+              <ActionButton text="SEND RESET EMAIL" onPress={resetPassword} disabled={!resetEmail} />
+            </Modal>
+            <View className="w-full px-4 flex justify-between flex-col h-full">
+              <View>
+                <TouchableOpacity onPress={() => setCurrentScreen(screens.START)} className="w-5 h-auto flex items-center absolute mt-12 left-2">
+                  <Text className="text-4xl font-light">×</Text>
+                </TouchableOpacity>
+                <View className="flex flex-row items-center justify-center relative mb-4 mt-36">
+                  <Text className="text-lg font-bold flex items-center justify-center text-gray-400">Enter your details</Text>
                 </View>
-                <ActionButton text="SEND RESET EMAIL" onPress={resetPassword} disabled={!resetEmail} />
-
-              </Modal>
-
-
-              <View className="w-full px-4 flex justify-between flex-col h-full">
-                <View>
-                    <TouchableOpacity onPress={() => setCurrentScreen(screens.START)} className="w-5 h-auto flex items-center absolute mt-12 left-2">
-                      <Text className="text-4xl font-light">×</Text>
-                    </TouchableOpacity>
-                  <View className="flex flex-row items-center justify-center relative mb-4 mt-36">
-
-                    <Text className="text-lg font-bold flex items-center justify-center text-gray-400">Enter your details</Text>
-                  </View>
-                  <View className="rounded-xl border border-gray-300">
+                <View className="rounded-xl border border-gray-300">
+                  <TextInput
+                    placeholder="Username or email"
+                    value={username}
+                    onChangeText={setUsername}
+                    className="h-14 w-full bg-gray-50 px-2 rounded-xl"
+                  />
+                  <View className="flex flex-row items-center justify-between rounded-b-xl">
                     <TextInput
-                      placeholder="Username or email"
-                      value={username}
-                      onChangeText={setUsername}
-                      className="h-14 w-full bg-gray-50 px-2 rounded-xl"
+                      placeholder="Password"
+                      value={password}
+                      onChangeText={setPassword}
+                      secureTextEntry={passwordVisible}
+                      className="h-14 w-96 px-2"
                     />
-                    <View className="flex flex-row items-center justify-between rounded-b-xl">
-                      <TextInput
-                        placeholder="Password"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry={passwordVisible}
-                        className="h-14 w-96 px-2"
+                    <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
+                      <Image
+                        className="w-6 h-6 mr-3 opacity-40"
+                        source={passwordVisible ? require('../../public/password_eye.png') : require('../../public/password_eye_strike.png')}
                       />
-                      <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)}>
-                        <Image
-                          className="w-6 h-6 mr-3 opacity-40"
-                          source={passwordVisible ? require('../../public/password_eye.png') : require('../../public/password_eye_strike.png')}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                  {signinError && <Text className='mt-3'>{signinError}</Text>}
-                  <View className="mt-4">
-                    <ActionButton text="SIGN IN" onPress={signinEmailPass} disabled={!username || !password} />
-
-                    <Text
-                      className="font-bold text-center mb-4 text-[#19B1F4] mt-4 text-lg"
-                      onPress={openModal}
-                    >
-                      FORGOT PASSWORD
-                    </Text>
-
-                  </View>
-                </View>
-                <View>
-                  <View className="flex flex-row justify-between mb-4 gap-x-4">
-                    {/* <TouchableOpacity className="mt-4 gap-x-1 h-12 flex flex-row justify-center items-center border flex-1 rounded-xl border-b-4 bg-white border-slate-300">
-                      <Image className="h-6 w-6" source={require('../../public/fb.png')} />
-                      <Text className="text-[#0266FF] text-center font-bold text-lg flex items-center justify-center">FACEBOOK</Text>
-                    </TouchableOpacity> */}
-                    <TouchableOpacity
-                      className="mt-4 gap-x-1 h-12 flex flex-row justify-center items-center border flex-1 rounded-xl border-b-4 bg-white border-slate-300"
-                      onPress={justGoogleSignin}
-                    >
-                      <Image className="h-6 w-6" source={require('../../public/google.png')} />
-                      <Text className="text-gray-500 text-center font-bold text-lg flex items-center justify-center">GOOGLE</Text>
                     </TouchableOpacity>
                   </View>
-                  <Text className="text-center text-sm text-gray-500 mb-4">
-                    By signing in to Harmony Hive, you agree to our Terms and Privacy Policy.
+                </View>
+                {signinError && <Text className='mt-3'>{signinError}</Text>}
+                <View className="mt-4">
+                  <ActionButton text="SIGN IN" onPress={signinEmailPass} disabled={!username || !password} />
+                  <Text
+                    className="font-bold text-center mb-4 text-[#FFCE00] mt-4 text-lg"
+                    onPress={openModal}
+                  >
+                    FORGOT PASSWORD
                   </Text>
                 </View>
               </View>
+              <View>
+                <View className="flex flex-row justify-between mb-4 gap-x-4">
+                  <TouchableOpacity
+                    className="mt-4 gap-x-1 h-12 flex flex-row justify-center items-center border flex-1 rounded-xl border-b-4 bg-white border-slate-300"
+                    onPress={justGoogleSignin}
+                  >
+                    <Image className="h-6 w-6" source={require('../../public/google.png')} />
+                    <Text className="text-gray-500 text-center font-bold text-lg flex items-center justify-center">GOOGLE</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text className="text-center text-sm text-gray-500 mb-4">
+                  By signing in to Harmony Hive, you agree to our Terms and Privacy Policy.
+                </Text>
+              </View>
             </View>
-          );
+          </View>
+        );
       default:
         return (
           <View className="flex h-full bg-white items-center justify-between px-4">
             <View className="flex justify-center items-center">
-              <Image className="w-32 h-32 mt-44" source={require('../../public/honeycomb.png')} />
+              <Image className="w-28 h-28 mt-44" source={require('../../public/honeycomb.png')} />
               <Image className="w-52 h-8 mt-2" source={require('../../public/logo.png')} />
               <Text className="text-slate-400 px-20 text-center text-xl mt-2">Tell your teacher you practiced without lying.</Text>
             </View>
             <View className="w-full flex flex-col gap-y-3.5 justify-end mb-3">
               <ActionButton text="GET STARTED" onPress={() => setCurrentScreen(screens.SATB)} />
-                <TouchableOpacity
-                  className="h-14 w-full flex justify-center rounded-xl border-b-4"
-                  onPress={() => setCurrentScreen(screens.LOGIN)}
-                  style={{ backgroundColor: '#FFA700', borderColor: '#FFA700' }}
-                >
-
+              <TouchableOpacity
+                className="h-14 w-full flex justify-center rounded-xl border-b-4"
+                onPress={() => setCurrentScreen(screens.LOGIN)}
+                style={{ backgroundColor: '#FFA700', borderColor: '#FFA700' }}
+              >
                 <Text className="text-white text-center text-md font-bold">I ALREADY HAVE AN ACCOUNT</Text>
               </TouchableOpacity>
             </View>
