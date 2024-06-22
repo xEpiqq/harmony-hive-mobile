@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import { Link, useRouter } from "expo-router";
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text, View, StyleSheet } from 'react-native';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -20,6 +20,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Starter from './Starter';
 import 'expo-dev-client';
 
+import { UserContext } from '@/contexts/UserContext';
+
 UIManager.setLayoutAnimationEnabledExperimental &&
 UIManager.setLayoutAnimationEnabledExperimental(true);
 
@@ -37,23 +39,9 @@ export default function Page() {
     prepare();
   }, []);
 
-  const [initializing, setInitializing] = useState(true);
-  const [user, setUser] = useState();
+  const user = useContext(UserContext);
   const [isLoading, setIsLoading ] = useState(true);
   const [showBottomNav, setShowBottomNav] = useState(true);
-
-  // Handle user state changes
-  function onAuthStateChanged(user) {
-    setUser(user);
-    if (initializing) setInitializing(false);
-  }
-
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber;
-  }, []);
-
-  if (initializing) return null
 
   return (
     <SafeAreaProvider>
@@ -98,16 +86,16 @@ export default function Page() {
             })}
           >
             <Tab.Screen name="Game">
-              {props => <GameScreen {...props} user={user} setIsLoading={setIsLoading} setShowBottomNav={setShowBottomNav} />}
+              {props => <GameScreen {...props} setIsLoading={setIsLoading} setShowBottomNav={setShowBottomNav} />}
             </Tab.Screen>
             <Tab.Screen name="Calendar">
-              {props => <Calendar  {...props} user={user} />}
+              {props => <Calendar  {...props} />}
             </Tab.Screen>
             <Tab.Screen name="Profile">
-              {props => <Profile {...props} user={user} />}
+              {props => <Profile {...props} />}
             </Tab.Screen>
             <Tab.Screen name="Chat" options={{ tabBarStyle: { display: 'none' }, }}>
-              {props => <ChatScreen {...props} onBack={() => props.navigation.goBack()} user={user} />}
+              {props => <ChatScreen {...props} onBack={() => props.navigation.goBack()} />}
             </Tab.Screen>
           </Tab.Navigator>
         </>

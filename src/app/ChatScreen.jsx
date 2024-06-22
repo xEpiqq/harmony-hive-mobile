@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, FlatList, TextInput, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
@@ -11,6 +11,8 @@ import EmojiPicker from 'rn-emoji-keyboard'
 // import RNFS from 'react-native-fs';
 import auth from '@react-native-firebase/auth';
 import { VirtualizedList } from 'react-native';
+
+import { UserContext } from '@/contexts/UserContext';
 
 
 
@@ -58,7 +60,9 @@ const happyFaceSvg = `
   </svg>
   `;
 
-function ChatScreen({ onBack, user, prefetchMessages }) {
+function ChatScreen({ onBack, prefetchMessages }) {
+
+  const user = useContext(UserContext);
 
   const [messages, setMessages] = useState(prefetchMessages);
   const [inputText, setInputText] = useState('');

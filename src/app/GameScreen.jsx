@@ -25,7 +25,7 @@ import MusicList from "@/components/MusicList";
 import { ChoirContext } from "@/contexts/ChoirContext";
 import { StateContext } from "@/contexts/StateContext";
 
-const GameScreen = ({ user, setIsLoading, setShowBottomNav }) => {
+const GameScreen = ({ setIsLoading, setShowBottomNav }) => {
   const { width: screenWidth } = Dimensions.get("window");
 
   const choir = useContext(ChoirContext);
