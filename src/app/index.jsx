@@ -43,9 +43,11 @@ export default function Page() {
   const [isLoading, setIsLoading ] = useState(true);
   const [showBottomNav, setShowBottomNav] = useState(true);
 
+  console.log(user);
+
   return (
     <SafeAreaProvider>
-      {!user ? (
+      {!user.email ? (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen
             name="Starter"
