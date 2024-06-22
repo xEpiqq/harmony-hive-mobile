@@ -12,6 +12,7 @@ import firestore from "@react-native-firebase/firestore";
 
 import { UserContext } from "@/contexts/UserContext";
 import { StateContext } from "@/contexts/StateContext";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function Profile() {
   const user = useContext(UserContext);
@@ -48,7 +49,7 @@ function Profile() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#ffffff", marginTop: 40 }}>
+    <SafeAreaView edges={["top"]} style={{ width: "100%", height: "100%", backgroundColor: "white" }}>
       {/* Profile info */}
       <View style={{ alignItems: "center", marginTop: 32 }}>
         <Image
@@ -154,7 +155,7 @@ function Profile() {
           Sign Out
         </Text>
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 

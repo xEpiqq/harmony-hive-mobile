@@ -16,6 +16,7 @@ import {
   Dimensions,
   BackHandler,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFocusEffect } from "@react-navigation/native";
 import MusicSheets from "@/components/MusicSheets";
@@ -24,12 +25,14 @@ import MusicList from "@/components/MusicList";
 
 import { ChoirContext } from "@/contexts/ChoirContext";
 import { StateContext } from "@/contexts/StateContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const GameScreen = ({ setIsLoading, setShowBottomNav }) => {
   const { width: screenWidth } = Dimensions.get("window");
 
   const choir = useContext(ChoirContext);
   const state = useContext(StateContext);
+  const insets = useSafeAreaInsets();
 
   const scrollX = useRef(new Animated.Value(0)).current;
 
@@ -100,79 +103,85 @@ const GameScreen = ({ setIsLoading, setShowBottomNav }) => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <View style={{ paddingTop: 30 }}>
-        <StatusBar barStyle="light-content" backgroundColor="#FFCE00" />
-      </View>
-
-      {!state.songId ? (
-        <>
-          <View className="flex-row justify-between px-4 py-3 items-center bg-[#FFCE00]">
-            <View className="flex-row items-center">
-              <Image
-                source={require("../../public/honeycomb.png")}
-                className="h-10 w-10"
-              />
-              <Text className="text-white ml-2">1</Text>
-            </View>
-            <View className="flex-row items-center">
-              <Text className="text-white mx-2">2356</Text>
-              <Image
-                source={require("../../public/honeycomb.png")}
-                className="h-6 w-6"
-              />
-            </View>
-            <View className="flex-row items-center">
-              <Text className="text-white mr-2">5</Text>
-              <Image
-                source={require("../../public/honeycomb.png")}
-                className="h-6 w-6"
-              />
-            </View>
-          </View>
-        </>
-      ) : null}
-
-      <View className="flex-1">
-        {state.songId ? (
-          <View style={{ flex: 1 }} className="bg-white">
-            {true && (
-              <>
-                <TouchableOpacity
-                  onPress={handleBackPress}
-                  style={{
-                    position: "absolute",
-                    top: 20,
-                    left: 10,
-                    zIndex: 1,
-                  }}
-                >
+      <SafeAreaView
+        edges={["top"]}
+        style={{ width: "100%", height: "100%", backgroundColor: "#FFCE00" }}
+      >
+        <SafeAreaView
+          edges={["left", "right"]}
+          style={{ width: "100%", height: "100%", backgroundColor: "white" }}
+        >
+          {!state.songId ? (
+            <>
+              <View className="flex-row relative justify-between px-4 py-3 items-center bg-[#FFCE00]">
+                <View className="flex-row items-center">
                   <Image
-                    source={require("../../public/grayarrow.png")}
-                    style={{ width: 20, height: 20, opacity: 0.5 }}
+                    source={require("../../public/honeycomb.png")}
+                    className="h-10 w-10"
                   />
-                </TouchableOpacity>
-                <MusicSheets scrollX={scrollX} screenWidth={screenWidth} />
+                  <Text className="text-white ml-2">1</Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Text className="text-white mx-2">2356</Text>
+                  <Image
+                    source={require("../../public/honeycomb.png")}
+                    className="h-6 w-6"
+                  />
+                </View>
+                <View className="flex-row items-center">
+                  <Text className="text-white mr-2">5</Text>
+                  <Image
+                    source={require("../../public/honeycomb.png")}
+                    className="h-6 w-6"
+                  />
+                </View>
+              </View>
+            </>
+          ) : null}
 
-                <View className="w-full h-20 flex justify-center bg-[#FFCE00] absolute b-0 bottom-0">
-                  <AudioPlayer
-                    // key={`${file.name}-${index}_audioplayer`}
-                    url="https://firebasestorage.googleapis.com/v0/b/harmonyhive-b4705.appspot.com/o/TUnrM8z359eWvkV6xnFY%2Fsongs%2F1rmeWWmcyiVwo0j4q399%2Faudio.mp3?alt=media&token=e9c82cee-2f73-4732-8eac-254737b0f16b" // Pass the download URL directly
-                  />
+          <View className="flex-1">
+            {state.songId ? (
+              <View style={{ flex: 1 }} className="bg-white">
+                {true && (
+                  <>
+                    <TouchableOpacity
+                      onPress={handleBackPress}
+                      style={{
+                        position: "absolute",
+                        top: 20,
+                        left: 10,
+                        zIndex: 1,
+                      }}
+                    >
+                      <Image
+                        source={require("../../public/grayarrow.png")}
+                        style={{ width: 20, height: 20, opacity: 0.5 }}
+                      />
+                    </TouchableOpacity>
+                    <MusicSheets scrollX={scrollX} screenWidth={screenWidth} />
+
+                    <View className="w-full h-20 flex justify-center bg-[#FFCE00] absolute b-0 bottom-0">
+                      <AudioPlayer
+                        // key={`${file.name}-${index}_audioplayer`}
+                        url="https://firebasestorage.googleapis.com/v0/b/harmonyhive-b4705.appspot.com/o/TUnrM8z359eWvkV6xnFY%2Fsongs%2F1rmeWWmcyiVwo0j4q399%2Faudio.mp3?alt=media&token=e9c82cee-2f73-4732-8eac-254737b0f16b" // Pass the download URL directly
+                      />
+                    </View>
+                  </>
+                )}
+              </View>
+            ) : (
+              <>
+                <Text className="bg-white font-thin">{choir.choirName}</Text>
+                <MusicList scrollX={scrollX} formatDate={formatDate} />
+
+                <View className="flex-row justify-center p-4 bg-white">
+                  {paginationDots}
                 </View>
               </>
             )}
           </View>
-        ) : (
-          <>
-            <Text className="bg-white font-thin">{choir.choirName}</Text>
-            <MusicList scrollX={scrollX} formatDate={formatDate} />
-
-            <View className="flex-row justify-center p-4 bg-white">
-              {paginationDots}
-            </View>
-          </>
-        )}
-      </View>
+        </SafeAreaView>
+      </SafeAreaView>
     </GestureHandlerRootView>
   );
 };
