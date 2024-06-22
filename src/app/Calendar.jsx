@@ -3,6 +3,8 @@ import { View, Text, FlatList } from "react-native";
 import firestore from "@react-native-firebase/firestore";
 
 import { ChoirContext } from "@/contexts/ChoirContext";
+import CherryBlossomBackground from "../components/CherryBlossomBackground";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function Calendar() {
   const choir = useContext(ChoirContext);
@@ -104,21 +106,25 @@ function Calendar() {
   );
 
   return (
-    <View className="flex-1 bg-white mt-10">
-      <View className="flex-row justify-between flex-col px-4 mb-2">
-        <Text className="text-xl font-bold">Calendar Events</Text>
-        <Text className="text-gray-500">Today's Date: {formatTodayDate()}</Text>
+    <SafeAreaView edges={["top"]} style={{ width: "100%", height: "100%", backgroundColor: "white" }}>
+      <View className="flex-1 bg-white">
+        <View className="flex-row justify-between flex-col p-4 border-b border-gray-200">
+          <Text className="text-xl font-bold">Calendar Events</Text>
+          <Text className="text-gray-500">
+            Today's Date: {formatTodayDate()}
+          </Text>
+        </View>
+        {choir.calendar.length > 0 ? (
+          <FlatList
+            data={choir.calendar}
+            renderItem={renderEventItem}
+            keyExtractor={(item) => item.eventId}
+          />
+        ) : (
+          <Text className="px-4 py-2 text-gray-500">No events scheduled</Text>
+        )}
       </View>
-      {choir.calendar.length > 0 ? (
-        <FlatList
-          data={choir.calendar}
-          renderItem={renderEventItem}
-          keyExtractor={(item) => item.eventId}
-        />
-      ) : (
-        <Text className="px-4 py-2 text-gray-500">No events scheduled</Text>
-      )}
-    </View>
+    </SafeAreaView>
   );
 }
 

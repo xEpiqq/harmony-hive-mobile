@@ -18,6 +18,7 @@ import {
 } from "react";
 import { StateContext } from "@/contexts/StateContext";
 import { ChoirContext } from "@/contexts/ChoirContext";
+import CherryBlossomBackground from "./CherryBlossomBackground";
 
 export default function MusicSheets({
   lastOpened,
@@ -37,6 +38,17 @@ export default function MusicSheets({
   const songs = choir.songs;
 
   const state = useContext(StateContext);
+
+  function hashStringToNumber(str) {
+    let hash = 0;
+    if (str.length === 0) return hash;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = (hash << 5) - hash + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    return Math.abs(hash);
+  }
 
   useEffect(() => {
     Animated.loop(
@@ -69,13 +81,11 @@ export default function MusicSheets({
           <TouchableOpacity onPress={() => state.setSongId(song.songId)}>
             <Text className="bg-white font-thin">
               Last Opened:{" "}
-              {song.lastOpened
-                ? formatDate(song.lastOpened)
-                : "NEVER..."}
+              {song.lastOpened ? formatDate(song.lastOpened) : "NEVER..."}
             </Text>
             <View className="relative flex items-center justify-center">
-              <Image
-                source={require("../../public/cherryblossom.png")}
+              <CherryBlossomBackground
+                seed={hashStringToNumber(song.name)}
                 className="absolute w-screen h-16 -z-10"
               />
               <Animated.Image

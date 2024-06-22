@@ -8,11 +8,20 @@ import {
 } from "react-native";
 import { useRef, useContext } from "react";
 import { ChoirContext } from "@/contexts/ChoirContext";
+import { StateContext } from "@/contexts/StateContext";
 
 export default function MusicSheets({ screenWidth, scrollX }) {
   const choir = useContext(ChoirContext);
-  const songId = "pljdzIetlaUvNXdXCHo1";
+  const state = useContext(StateContext);
+  const songId = state.songId;
   const song = choir.songs.find((s) => s.songId === songId);
+
+  console.log(songId);
+
+  if (!songId) {
+    console.log("EJECT")
+    return null;
+  }
 
   return (
     <View className="-mt-16">
