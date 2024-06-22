@@ -11,7 +11,8 @@
     },
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
-      "bundleIdentifier": "com.xepiq.harmonyhive"
+      "bundleIdentifier": "com.xepiq.harmonyhive",
+      "supportsTablet": true
     },
     "name": "Harmony Hive",
     "scheme": "acme",

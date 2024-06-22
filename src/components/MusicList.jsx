@@ -8,15 +8,21 @@ import {
   FlatList,
 } from "react-native";
 
-import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+  useContext,
+} from "react";
+import { StateContext } from "@/contexts/StateContext";
+import { ChoirContext } from "@/contexts/ChoirContext";
 
 export default function MusicSheets({
-  songs,
-  handleSelectSong,
   lastOpened,
   formatDate,
   choirName,
-  screenWidth,
   scrollX,
   onViewableItemsChanged,
 }) {
@@ -27,7 +33,10 @@ export default function MusicSheets({
     []
   );
   const spinValue = useRef(new Animated.Value(0)).current;
+  const choir = useContext(ChoirContext);
+  const songs = choir.songs;
 
+  const state = useContext(StateContext);
 
   useEffect(() => {
     Animated.loop(
@@ -57,11 +66,11 @@ export default function MusicSheets({
           key={song.songId}
           className="w-screen h-screen flex items-center justify-center bg-white -mt-36"
         >
-          <TouchableOpacity onPress={() => handleSelectSong(song)}>
+          <TouchableOpacity onPress={() => state.setSongId(song.songId)}>
             <Text className="bg-white font-thin">
               Last Opened:{" "}
-              {lastOpened[song.songId]
-                ? formatDate(lastOpened[song.songId])
+              {song.lastOpened
+                ? formatDate(song.lastOpened)
                 : "NEVER..."}
             </Text>
             <View className="relative flex items-center justify-center">
@@ -85,7 +94,7 @@ export default function MusicSheets({
         </View>
       </>
     ),
-    [handleSelectSong, lastOpened, formatDate, spin]
+    [lastOpened, formatDate, spin]
   );
 
   return (
