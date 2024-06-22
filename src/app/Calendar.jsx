@@ -4,7 +4,7 @@ import firestore from "@react-native-firebase/firestore";
 
 import { ChoirContext } from "@/contexts/ChoirContext";
 
-function Calendar({ user }) {
+function Calendar() {
   const choir = useContext(ChoirContext);
 
   const formatDate = (dateString) => {
