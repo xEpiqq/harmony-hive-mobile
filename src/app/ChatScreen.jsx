@@ -6,6 +6,8 @@ import {
   FlatList,
   TextInput,
   Image,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import firestore from "@react-native-firebase/firestore";
@@ -488,6 +490,7 @@ function ChatScreen({ onBack, prefetchMessages }) {
     <SafeAreaView
       style={{ width: "100%", height: "100%", backgroundColor: "white" }}
     >
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1"> 
       <View className="flex-row items-center justify-between p-6 border-b border-gray-300">
         <TouchableOpacity onPress={onBack}>
           <Text className="text-lg text-blue-600">Back</Text>
@@ -509,13 +512,14 @@ function ChatScreen({ onBack, prefetchMessages }) {
         data={messages}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        className="flex-1"
+        className="flex-1 min-h-0"
         inverted
         getItemCount={(data) => (data ? data.length : 0)}
         getItem={(data, index) => (data ? data[index] : null)}
       />
 
       <View
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         className={`flex w-full h-14 justify-center ${
           showIcons ? "flex-col h-12" : "flex-row items-center px-2"
         } rounded-t-xl border-t-[0.5px] border-r-[0.5px] border-l-[0.5px] border-t-[#d6d6d6] border-r-[#d6d6d6] border-l-[#d6d6d6]`}
@@ -536,7 +540,7 @@ function ChatScreen({ onBack, prefetchMessages }) {
             <View className="bg-[#d3d3d3] h-[2px] w-10 rounded-xl" />
           </View>
         )}
-
+  
         <TextInput
           className="flex-1 rounded-xl px-4 placeholder:opacity-[0.8] text-[#1c1c1c] font-medium"
           placeholder="Message #general"
@@ -598,7 +602,8 @@ function ChatScreen({ onBack, prefetchMessages }) {
         open={emojiKeyboard}
         onClose={() => setEmojiKeyboard(false)}
       />
-    </SafeAreaView>
+      </KeyboardAvoidingView>
+      </SafeAreaView>
   );
 }
 
