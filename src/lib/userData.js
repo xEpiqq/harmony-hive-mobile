@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-
+import { useState, useEffect, useContext } from "react";
 import firestore from "@react-native-firebase/firestore";
 
 export default function useUserData(user) {
@@ -8,6 +7,7 @@ export default function useUserData(user) {
   const [email, setEmail] = useState(null);
   const [photoURL, setPhotoURL] = useState(null);
   const [uid, setUID] = useState(null);
+  const [channels, setChannels] = useState({});
 
   useEffect(() => {
     if (!user) return;
@@ -37,6 +37,10 @@ export default function useUserData(user) {
           Promise.all(choirPromises).then((choirs) => {
             setChoirsJoined(choirs.filter((choir) => choir !== null));
           });
+
+          if (data.messaging_channels) {
+            setChannels(data.messaging_channels);
+          }
         }
       }
     });
@@ -50,30 +54,68 @@ export default function useUserData(user) {
   }, [user]);
 
   const joinChoir = async (newChoirCode) => {
-    console.log("here")
     try {
       const choirSnapshot = await firestore()
         .collection("choirs")
         .where("code", "==", newChoirCode)
         .get();
       if (choirSnapshot.empty) {
-        return {message: "Choir code not found"};
+        return { message: "Choir code not found" };
       }
 
       const choirDoc = choirSnapshot.docs[0];
       const choirId = choirDoc.id;
+
+      // Fetch the Main channel ID
+      const channelsSnapshot = await firestore()
+        .collection("choirs")
+        .doc(choirId)
+        .collection("channels")
+        .where("name", "==", "Main")
+        .get();
+
+      let mainChannelId = '';
+      if (!channelsSnapshot.empty) {
+        mainChannelId = channelsSnapshot.docs[0].id;
+      }
 
       await firestore()
         .collection("users")
         .doc(user.uid)
         .update({
           choirs_joined: firestore.FieldValue.arrayUnion(choirId),
+          [`messaging_channels.${choirId}`]: {
+            Main: mainChannelId,
+          },
         });
+
+      console.log("Choir joined and messaging_channels updated!");
     } catch (error) {
       console.log("Error joining choir:", error);
       return error;
     }
   };
 
-  return { choirsJoined, displayName, email, photoURL, uid, joinChoir };
+  const updateDisplayName = async (newDisplayName) => {
+    try {
+      await firestore().collection("users").doc(user.uid).update({
+        displayName: newDisplayName,
+      });
+      setDisplayName(newDisplayName);
+    } catch (error) {
+      console.log("Error updating display name:", error);
+      return error;
+    }
+  };
+
+  return {
+    choirsJoined,
+    displayName,
+    email,
+    photoURL,
+    uid,
+    channels,
+    joinChoir,
+    updateDisplayName,
+  };
 }

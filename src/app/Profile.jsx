@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -7,9 +7,8 @@ import {
   TextInput,
   Image,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import auth from "@react-native-firebase/auth";
-import firestore from "@react-native-firebase/firestore";
-
 import { UserContext } from "@/contexts/UserContext";
 import { StateContext } from "@/contexts/StateContext";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,8 +16,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 function Profile() {
   const user = useContext(UserContext);
   const state = useContext(StateContext);
+  const navigation = useNavigation();
   const [newChoirCode, setNewChoirCode] = useState("");
   const [joinChoirError, setJoinChoirError] = useState("");
+  const [editingName, setEditingName] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState(user.displayName);
 
   const handleChoirSelect = async (choirId) => {
     state.setChoirId(choirId);
@@ -31,6 +33,16 @@ function Profile() {
       setJoinChoirError(joinChoirResponse.message);
       return;
     }
+  };
+
+  const handleSignOut = async () => {
+    await auth().signOut();
+    navigation.navigate("Starter");
+  };
+
+  const handleSaveDisplayName = async () => {
+    await user.updateDisplayName(newDisplayName);
+    setEditingName(false);
   };
 
   const renderChoirItem = ({ item }) => (
@@ -49,16 +61,47 @@ function Profile() {
   );
 
   return (
-    <SafeAreaView edges={["top"]} style={{ width: "100%", height: "100%", backgroundColor: "white" }}>
+    <SafeAreaView
+      edges={["top"]}
+      style={{ width: "100%", height: "100%", backgroundColor: "white" }}
+    >
       {/* Profile info */}
       <View style={{ alignItems: "center", marginTop: 32 }}>
         <Image
           source={{ uri: user.photoURL }}
           style={{ width: 96, height: 96, borderRadius: 48 }}
         />
-        <Text style={{ fontSize: 24, fontWeight: "bold", marginTop: 16 }}>
-          {user.displayName}
-        </Text>
+        {editingName ? (
+          <View style={{ flexDirection: "row", alignItems: "center", marginTop: 16 }}>
+            <TextInput
+              value={newDisplayName}
+              onChangeText={setNewDisplayName}
+              style={{
+                borderWidth: 1,
+                borderColor: "#d1d5db",
+                borderRadius: 8,
+                paddingHorizontal: 16,
+                paddingVertical: 8,
+                marginRight: 8,
+              }}
+            />
+            <TouchableOpacity onPress={handleSaveDisplayName}>
+              <Text style={{ color: "#3b82f6", fontWeight: "bold" }}>Save</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setEditingName(false)} style={{ marginLeft: 8 }}>
+              <Text style={{ color: "red", fontWeight: "bold" }}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            <Text style={{ fontSize: 24, fontWeight: "bold", marginTop: 16 }}>
+              {user.displayName}
+            </Text>
+            <TouchableOpacity onPress={() => setEditingName(true)}>
+              <Text style={{ color: "#3b82f6", marginTop: 8 }}>Edit</Text>
+            </TouchableOpacity>
+          </>
+        )}
         <Text style={{ color: "#6b7280" }}>{user.email}</Text>
       </View>
 
@@ -112,9 +155,7 @@ function Profile() {
           }}
         />
         {joinChoirError ? (
-          <Text style={{ color: "red", marginBottom: 8 }}>
-            {joinChoirError}
-          </Text>
+          <Text style={{ color: "red", marginBottom: 8 }}>{joinChoirError}</Text>
         ) : null}
         <TouchableOpacity
           onPress={handleJoinChoir}
@@ -147,7 +188,7 @@ function Profile() {
           marginTop: 32,
           marginHorizontal: 16,
         }}
-        onPress={() => auth().signOut()}
+        onPress={handleSignOut}
       >
         <Text
           style={{ color: "#ffffff", fontWeight: "bold", textAlign: "center" }}

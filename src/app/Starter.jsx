@@ -117,12 +117,26 @@ function Starter() {
       setCreateAccountError('Passwords do not match!');
       return;
     }
-
+  
     try {
       const userCredential = await auth().createUserWithEmailAndPassword(username, password);
       console.log('User account created & signed in!');
       const capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
       const capitalizedLastName = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase();
+  
+      // Fetch the Main channel ID
+      const channelsSnapshot = await firestore()
+        .collection('choirs')
+        .doc(choirJoinUid)
+        .collection('channels')
+        .where('name', '==', 'Main')
+        .get();
+  
+      let mainChannelId = '';
+      if (!channelsSnapshot.empty) {
+        mainChannelId = channelsSnapshot.docs[0].id;
+      }
+  
       await firestore()
         .collection('users')
         .doc(userCredential.user.uid)
@@ -135,7 +149,13 @@ function Starter() {
           name: `${capitalizedFirstName} ${capitalizedLastName}`,
           part: satbChoice,
           user_type: 'student',
+          messaging_channels: {
+            [choirJoinUid]: {
+              Main: mainChannelId,
+            },
+          },
         });
+  
       console.log('User added to Firestore!');
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {
@@ -146,6 +166,7 @@ function Starter() {
       console.error(error);
     }
   };
+  
 
   const onGoogleButtonPress = async () => {
     try {
@@ -158,6 +179,20 @@ function Starter() {
       if (!docSnapshot.exists) {
         const capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
         const capitalizedLastName = lastName.charAt(0).toUpperCase() + lastName.slice(1).toLowerCase();
+  
+        // Fetch the Main channel ID
+        const channelsSnapshot = await firestore()
+          .collection('choirs')
+          .doc(choirJoinUid)
+          .collection('channels')
+          .where('name', '==', 'Main')
+          .get();
+  
+        let mainChannelId = '';
+        if (!channelsSnapshot.empty) {
+          mainChannelId = channelsSnapshot.docs[0].id;
+        }
+  
         await userDocRef.set({
           choir_selected: choirJoinUid,
           choirs_joined: [choirJoinUid],
@@ -167,6 +202,11 @@ function Starter() {
           name: `${capitalizedFirstName} ${capitalizedLastName}`,
           part: satbChoice,
           user_type: 'student',
+          messaging_channels: {
+            [choirJoinUid]: {
+              Main: mainChannelId,
+            },
+          },
         });
         console.log('New user added to Firestore!');
       } else {
@@ -178,6 +218,7 @@ function Starter() {
       throw new Error(error);
     }
   };
+  
 
   const justGoogleSignin = async () => {
     try {
