@@ -1,20 +1,35 @@
-import React from 'react';
-import { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import Video from 'react-native-video';
-import Slider from '@react-native-community/slider';
+import React, { useContext } from "react";
+import { useState, useRef } from "react";
+import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+import Video from "react-native-video";
+import Slider from "@react-native-community/slider";
 import { ActivityIndicator } from "react-native";
 
-const AudioPlayer = (props) => {
-  const { url, style } = props;
-  const [paused, setPaused] = useState(true);
+import { StateContext } from "@/contexts/StateContext";
+import { ChoirContext } from "@/contexts/ChoirContext";
 
+const AudioPlayer = () => {
+  const state = useContext(StateContext);
+  const choir = useContext(ChoirContext);
+
+  const [paused, setPaused] = useState(true);
   const videoRef = useRef(null);
-  
+
   const [totalLength, setTotalLength] = useState(0);
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(false);
-  
+
+  const pauseIcon = require("../../public/pause.png");
+  const playIcon = require("../../public/play.png");
+
+  const songId = state?.songId;
+  const song = choir?.songs.find((s) => s.songId === songId);
+  const satb_audio = song?.satb_audio;
+
+  if (!satb_audio) {
+    return null;
+  }
+
   const onSeek = (time) => {
     time = Math.round(time);
     videoRef.current.seek(time);
@@ -35,6 +50,7 @@ const AudioPlayer = (props) => {
     setPaused(!paused);
   };
 
+  // convert seconds to hh:mm:ss
   function toHHMMSS(secs) {
     const sec_num = parseInt(secs, 10);
     const hours = Math.floor(sec_num / 3600);
@@ -48,9 +64,9 @@ const AudioPlayer = (props) => {
   }
 
   return (
-    <View style={[style && style, {}]}>
+    <View>
       <Video
-        source={{ uri: url }}
+        source={{ uri: satb_audio }}
         ref={videoRef}
         playInBackground={false}
         audioOnly={true}
@@ -69,22 +85,22 @@ const AudioPlayer = (props) => {
         <View style={styles.controlsContainer}>
           {loading ? (
             <View style={styles.loading}>
-              <ActivityIndicator size="large" color="#FFF"/>
+              <ActivityIndicator size="large" color="#FFF" />
             </View>
           ) : (
-            <View style={styles.controlRow}>
+            <View className="flex-row items-center justify-center px-4 w-full">
               <TouchableOpacity onPress={togglePlay}>
-                {/* <Image
-                  source={paused ? Images.playIcon : Images.pauseIcon}
+                <Image
+                  source={paused ? playIcon : pauseIcon}
                   style={styles.playPauseIcon}
-                /> */}
+                />
               </TouchableOpacity>
               <Slider
                 style={styles.slider}
                 minimumValue={0}
                 maximumValue={Math.max(totalLength, 1, currentPosition + 1)}
-                minimumTrackTintColor={'#fff'}
-                maximumTrackTintColor={'grey'}
+                minimumTrackTintColor={"#fff"}
+                maximumTrackTintColor={"grey"}
                 onSlidingComplete={onSeek}
                 value={currentPosition}
               />
@@ -101,28 +117,23 @@ const AudioPlayer = (props) => {
 
 const styles = StyleSheet.create({
   controlsContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   loading: {
     margin: 16,
   },
-  controlRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '90%',
-  },
   playPauseIcon: {
     height: 30,
     width: 30,
-    resizeMode: 'contain',
+    resizeMode: "contain",
     marginRight: 10,
   },
   slider: {
     flex: 1,
   },
   timeText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
     marginLeft: 10,
   },
