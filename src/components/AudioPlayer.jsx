@@ -19,7 +19,8 @@ const AudioPlayer = () => {
   const [currentPosition, setCurrentPosition] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  console.log(state)
+  const pauseIcon = require("../../public/pause.png");
+  const playIcon = require("../../public/play.png");
 
   const songId = state?.songId;
   const song = choir?.songs.find((s) => s.songId === songId);
@@ -87,12 +88,12 @@ const AudioPlayer = () => {
               <ActivityIndicator size="large" color="#FFF" />
             </View>
           ) : (
-            <View style={styles.controlRow}>
+            <View className="flex-row items-center justify-center px-4 w-full">
               <TouchableOpacity onPress={togglePlay}>
-                {/* <Image
-                  source={paused ? Images.playIcon : Images.pauseIcon}
+                <Image
+                  source={paused ? playIcon : pauseIcon}
                   style={styles.playPauseIcon}
-                /> */}
+                />
               </TouchableOpacity>
               <Slider
                 style={styles.slider}
@@ -121,11 +122,6 @@ const styles = StyleSheet.create({
   },
   loading: {
     margin: 16,
-  },
-  controlRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "90%",
   },
   playPauseIcon: {
     height: 30,
