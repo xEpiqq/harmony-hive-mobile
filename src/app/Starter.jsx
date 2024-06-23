@@ -15,7 +15,7 @@ const screens = {
   CODE: 3,
   CREATE_ACCOUNT: 4,
   JOIN_CHOIR: 5,
-  LOGIN: 6, // Add this line
+  LOGIN: 6,
 };
 
 const InputField = ({ placeholder, value, onChangeText, secureTextEntry, maxLength }) => (
