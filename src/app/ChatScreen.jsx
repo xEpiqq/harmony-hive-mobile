@@ -213,7 +213,7 @@ function ChatScreen({ onBack, prefetchMessages }) {
 
   function handleNewReaction(messageId) {
     console.log("Is this the function?");
-    setEmojiKeyboard(true);
+    setEmojiKeyboard(Platform.OS === "ios");
     console.log(messageId);
     setReactionMessageId(messageId);
   }

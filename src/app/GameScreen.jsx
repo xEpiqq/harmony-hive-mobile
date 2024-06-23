@@ -19,13 +19,12 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFocusEffect } from "@react-navigation/native";
-import MusicSheets from "@/components/MusicSheets";
-import AudioPlayer from "@/components/AudioPlayer";
 import MusicList from "@/components/MusicList";
 
 import { ChoirContext } from "@/contexts/ChoirContext";
 import { StateContext } from "@/contexts/StateContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import SongScreen from "../components/SongScreen";
 
 const GameScreen = ({ setIsLoading, setShowBottomNav }) => {
   const { width: screenWidth } = Dimensions.get("window");
@@ -143,30 +142,7 @@ const GameScreen = ({ setIsLoading, setShowBottomNav }) => {
             {state.songId ? (
               <View style={{ flex: 1 }} className="bg-white">
                 {true && (
-                  <>
-                    <TouchableOpacity
-                      onPress={handleBackPress}
-                      style={{
-                        position: "absolute",
-                        top: 20,
-                        left: 10,
-                        zIndex: 1,
-                      }}
-                    >
-                      <Image
-                        source={require("../../public/grayarrow.png")}
-                        style={{ width: 20, height: 20, opacity: 0.5 }}
-                      />
-                    </TouchableOpacity>
-                    <MusicSheets scrollX={scrollX} screenWidth={screenWidth} />
-
-                    <View className="w-full h-20 flex justify-center bg-[#FFCE00] absolute b-0 bottom-0">
-                      <AudioPlayer
-                        // key={`${file.name}-${index}_audioplayer`}
-                        url="https://firebasestorage.googleapis.com/v0/b/harmonyhive-b4705.appspot.com/o/TUnrM8z359eWvkV6xnFY%2Fsongs%2F1rmeWWmcyiVwo0j4q399%2Faudio.mp3?alt=media&token=e9c82cee-2f73-4732-8eac-254737b0f16b" // Pass the download URL directly
-                      />
-                    </View>
-                  </>
+                  <SongScreen handleBackPress={handleBackPress} scrollX={scrollX} screenWidth={screenWidth} />
                 )}
               </View>
             ) : (

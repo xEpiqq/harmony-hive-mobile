@@ -19,7 +19,7 @@ export default function MusicSheets({ screenWidth, scrollX }) {
   console.log(songId);
 
   if (!songId) {
-    console.log("EJECT")
+    console.log("EJECT");
     return null;
   }
 
