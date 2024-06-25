@@ -9,10 +9,10 @@ export default function StateContextProvider({ children }) {
   const [songId, setSongId] = useState();
   const [messagingChannel, setMessagingChannel] = useState();
 
-//   useEffect(() => {
-//     setSongId(undefined);
-//     setMessagingChannel(undefined);
-//   }, [choirId]);
+  useEffect(() => {
+    setSongId(undefined);
+    setMessagingChannel(undefined);
+  }, [choirId]);
 
 //   useEffect(() => {
 //     // Store state in local storage
