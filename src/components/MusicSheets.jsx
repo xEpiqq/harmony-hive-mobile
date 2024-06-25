@@ -16,6 +16,12 @@ export default function MusicSheets({ screenWidth, scrollX }) {
   const songId = state.songId;
   const song = choir.songs.find((s) => s.songId === songId);
 
+  const images = song.satb_sheets.map((image) => {
+    return (
+      <Image source={{ uri: image }} className="w-full h-full p-4 object-cover" />
+    );
+  });
+
   console.log(songId);
 
   if (!songId) {
@@ -24,31 +30,18 @@ export default function MusicSheets({ screenWidth, scrollX }) {
   }
 
   return (
-    <View className="-mt-16">
+    <View className="w-full h-full flex-1">
       <FlatList
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         data={song.satb_sheets}
         renderItem={({ index }) => {
-          const image = song.satb_sheets[index];
-          console.log(image);
           return (
             <View
-              style={{
-                width: screenWidth,
-                height: "100%",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              className="w-screen p-4 h-full"
             >
-              <Image
-                source={{
-                  uri: image,
-                  method: "GET",
-                }}
-                style={{ width: 500, height: 500 }}
-              />
+              {images[index]}
             </View>
           );
         }}
