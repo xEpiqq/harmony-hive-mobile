@@ -30,7 +30,7 @@ export default function MusicSheets({ screenWidth, scrollX }) {
   }
 
   return (
-    <View>
+    <View className="w-full h-full flex-1">
       <FlatList
         horizontal
         pagingEnabled

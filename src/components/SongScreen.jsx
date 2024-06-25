@@ -25,6 +25,7 @@ export default function SongScreen({ handleBackPress, scrollX, screenWidth }) {
         onPress={handleBackPress}
         style={{
           position: "absolute",
+          flex: 1,
           top: 20,
           left: 10,
           zIndex: 1,
