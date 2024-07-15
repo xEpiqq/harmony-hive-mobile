@@ -11,6 +11,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Starter from "./Starter";
 import "expo-dev-client";
+import { useNavigation } from '@react-navigation/native';
 
 import { UserContext } from "@/contexts/UserContext";
 
@@ -26,6 +27,7 @@ export default function Page() {
   const user = useContext(UserContext);
   const [isLoading, setIsLoading] = useState(true);
   const [showBottomNav, setShowBottomNav] = useState(true);
+
 
   useEffect(() => {
     async function prepare() {
@@ -56,13 +58,17 @@ export default function Page() {
             resizeMode="contain"
           />
         </View>
-      ) : !user.email ? (
+      ) : !user ? (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen
+          {/* <Stack.Screen
             name="Starter"
             component={Starter}
             options={{ headerShown: false }}
-          />
+            setShowBottomNav={setShowBottomNav}
+          /> */}
+          <Starter
+            setShowBottomNav={setShowBottomNav}
+            />
         </Stack.Navigator>
       ) : (
         <>
@@ -146,7 +152,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   selectedTabIcon: {
-    backgroundColor: "#ffeb99", // Customize this color to match the blue background
+    backgroundColor: "#ffeb99", // Customize this color to match the blue background$
     borderColor: "#FFCE00", // Slightly darker shade for the border
     borderWidth: 2,
   },

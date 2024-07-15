@@ -20,14 +20,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFocusEffect } from "@react-navigation/native";
 import MusicList from "@/components/MusicList";
+import { UserContext } from "@/contexts/UserContext";
+import { useNavigation } from "@react-navigation/native";
 
 import { ChoirContext } from "@/contexts/ChoirContext";
 import { StateContext } from "@/contexts/StateContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SongScreen from "../components/SongScreen";
 
-const GameScreen = ({ setIsLoading, setShowBottomNav }) => {
+const GameScreen = ({ setShowBottomNav }) => {
+  const navigation = useNavigation();
+
   const { width: screenWidth } = Dimensions.get("window");
+  const user = useContext(UserContext);
 
   const choir = useContext(ChoirContext);
   const state = useContext(StateContext);
@@ -41,7 +46,17 @@ const GameScreen = ({ setIsLoading, setShowBottomNav }) => {
   }, []);
 
   useEffect(() => {
-    setIsLoading(false);
+    setShowBottomNav(true);
+  }, [setShowBottomNav]);
+
+  useEffect(() => {
+    if (!user.email) {
+      navigation.navigate("Starter");
+    }
+
+  }, []);
+
+  useEffect(() => {
     state.setSongId(undefined);
   }, []);
 
