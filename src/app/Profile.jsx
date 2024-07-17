@@ -8,6 +8,7 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import auth from "@react-native-firebase/auth";
@@ -23,6 +24,9 @@ function Profile() {
   const [joinChoirError, setJoinChoirError] = useState("");
   const [editingName, setEditingName] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState(user.displayName);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [confirmationText, setConfirmationText] = useState("");
+  const [deleteError, setDeleteError] = useState("");
 
   const handleChoirSelect = async (choirId) => {
     state.setChoirId(choirId);
@@ -45,6 +49,21 @@ function Profile() {
   const handleSaveDisplayName = async () => {
     await user.updateDisplayName(newDisplayName);
     setEditingName(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    if (confirmationText === `delete ${user.displayName}'s account`) {
+      try {
+        const userAuth = auth().currentUser;
+        await userAuth.delete();
+        navigation.navigate("Starter");
+      } catch (error) {
+        console.error("Error deleting account: ", error);
+        setDeleteError("Failed to delete account (signin must be very recent--try signing out, signing in again, and deleting)");
+      }
+    } else {
+      setDeleteError("Confirmation text is incorrect.");
+    }
   };
 
   const renderChoirItem = ({ item }) => (
@@ -74,7 +93,11 @@ function Profile() {
         {/* Profile info */}
         <View style={{ alignItems: "center", marginTop: 32 }}>
           <Image
-            source={{ uri: user.photoURL }}
+            source={
+              user.photoURL
+                ? { uri: user.photoURL }
+                : require("../../public/defaultavatar.png")
+            }
             style={{ width: 96, height: 96, borderRadius: 48 }}
           />
           {editingName ? (
@@ -219,6 +242,99 @@ function Profile() {
             Sign Out
           </Text>
         </TouchableOpacity>
+
+        {/* Delete account subtext */}
+        <TouchableOpacity
+          onPress={() => setShowDeleteModal(true)}
+          style={{ position: "absolute", bottom: 16, right: 16 }}
+        >
+          <Text style={{ color: "red", fontSize: 12 }}>Delete Account</Text>
+        </TouchableOpacity>
+
+        {/* Delete account modal */}
+        <Modal
+          transparent={false}
+          visible={showDeleteModal}
+          onRequestClose={() => setShowDeleteModal(false)}
+        >
+          <View
+            style={{
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "rgba(0,0,0,0.5)",
+            }}
+          >
+            <View
+              className="w-full h-full bg-white p-20 flex justify-center"
+            >
+              <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 4 }}>
+                Confirm Account Deletion
+              </Text>
+              <Text className="text-red-500">deletion can't be undone</Text>
+              <Text style={{ marginBottom: 16 }}>
+                Type "delete {user.displayName}'s account" to confirm account deletion.
+              </Text>
+              <TextInput
+                value={confirmationText}
+                onChangeText={setConfirmationText}
+                placeholder={`delete ${user.displayName}'s account`}
+                style={{
+                  borderWidth: 1,
+                  borderColor: "#d1d5db",
+                  borderRadius: 8,
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                  marginBottom: 16,
+                }}
+              />
+              {deleteError ? (
+                <Text style={{ color: "red", marginBottom: 8 }}>
+                  {deleteError}
+                </Text>
+              ) : null}
+              <TouchableOpacity
+                onPress={handleDeleteAccount}
+                style={{
+                  backgroundColor: "red",
+                  paddingVertical: 12,
+                  paddingHorizontal: 24,
+                  borderRadius: 8,
+                  marginBottom: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#ffffff",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  Delete Account
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setShowDeleteModal(false)}
+                style={{
+                  backgroundColor: "#d1d5db",
+                  paddingVertical: 12,
+                  paddingHorizontal: 24,
+                  borderRadius: 8,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#000000",
+                    fontWeight: "bold",
+                    textAlign: "center",
+                  }}
+                >
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
