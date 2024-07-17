@@ -38,6 +38,13 @@ export default function Page() {
       setIsLoading(false);
     }, 2000); // Adjust this timeout as needed
   }, []);
+  
+  
+
+  useEffect(() => {
+    // print email
+    console.log(user);
+  }, [user]);
 
   return (
     <SafeAreaProvider>
