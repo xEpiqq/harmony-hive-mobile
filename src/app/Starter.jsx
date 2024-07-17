@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, BackHandler, Alert, Modal } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { UserContext } from "@/contexts/UserContext";
+import { useNavigation } from "@react-navigation/native";
 
 GoogleSignin.configure({
   webClientId: '41274838584-680c8sgq16fojgeq7nla5j6foioqq46p.apps.googleusercontent.com',
@@ -43,7 +45,10 @@ const ActionButton = ({ text, onPress, disabled }) => (
   </TouchableOpacity>
 );
 
-function Starter() {
+function Starter( { setShowBottomNav }) {
+  const user = useContext(UserContext);
+  const navigation = useNavigation();
+
   const [currentScreen, setCurrentScreen] = useState(screens.START);
   const [login, setLogin] = useState(true);
   const [username, setUsername] = useState('');
@@ -68,6 +73,10 @@ function Starter() {
 
   const nextScreen = () => setCurrentScreen(currentScreen + 1);
   const prevScreen = () => currentScreen > 0 && setCurrentScreen(currentScreen - 1);
+
+  // function navigateToGameScreen() {
+  //     navigation.navigate("GameScreen")
+  // }
 
   const handleSatbChoice = (choice) => {
     setSatbChoice(choice);
@@ -102,6 +111,7 @@ function Starter() {
     try {
       await auth().signInWithEmailAndPassword(username, password);
       console.log('User signed in!');
+      // navigateToGameScreen();
     } catch (error) {
       if (error.code === 'auth/too-many-requests') {
         setSigninError('Too many login attempts, try again later!');
