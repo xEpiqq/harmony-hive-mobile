@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useRef } from "react";
 import firestore from "@react-native-firebase/firestore";
 
 export default function useUserData(user) {
@@ -8,9 +8,25 @@ export default function useUserData(user) {
   const [photoURL, setPhotoURL] = useState(null);
   const [uid, setUID] = useState(null);
   const [channels, setChannels] = useState({});
+  const unsubscribeRef = useRef(null);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      if (unsubscribeRef.current) {
+        console.log("Unsubscribing from user data");
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+
+      setDisplayName(null);
+      setEmail(null);
+      setPhotoURL(null);
+      setUID(null);
+      setChannels({});
+      setChoirsJoined([]);
+
+      return;
+    }
     const userRef = firestore().collection("users").doc(user.uid);
     const unsubscribe = userRef.onSnapshot((doc) => {
       if (doc.exists) {
@@ -45,6 +61,8 @@ export default function useUserData(user) {
       }
     });
 
+    unsubscribeRef.current = unsubscribe;
+
     setDisplayName(user.displayName);
     setEmail(user.email);
     setPhotoURL(user.photoURL);
@@ -52,6 +70,13 @@ export default function useUserData(user) {
 
     return unsubscribe;
   }, [user]);
+
+  const setUser = (user) => {
+    setDisplayName(user.displayName);
+    setEmail(user.email);
+    setPhotoURL(user.photoURL);
+    setUID(user.uid);
+  };
 
   const joinChoir = async (newChoirCode) => {
     try {
@@ -74,7 +99,7 @@ export default function useUserData(user) {
         .where("name", "==", "Main")
         .get();
 
-      let mainChannelId = '';
+      let mainChannelId = "";
       if (!channelsSnapshot.empty) {
         mainChannelId = channelsSnapshot.docs[0].id;
       }
@@ -115,6 +140,7 @@ export default function useUserData(user) {
     photoURL,
     uid,
     channels,
+    setUser,
     joinChoir,
     updateDisplayName,
   };

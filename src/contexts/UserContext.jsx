@@ -11,15 +11,21 @@ export default function UserProvider({ children }) {
   const userData = useUserData(user);
 
   function onAuthStateChanged(user) {
+    console.log("onAuthStateChanged");
     setUser(user);
+
+    
   }
+
+  useEffect(() => {
+    console.log("Userdata changed");
+    console.log(userData);
+  }, [userData]);
 
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber;
   }, []);
-
-  console.log("userData", userData);
 
 
   return <UserContext.Provider value={userData}>{children}</UserContext.Provider>;

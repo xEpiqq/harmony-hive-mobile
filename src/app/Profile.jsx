@@ -43,7 +43,7 @@ function Profile() {
 
   const handleSignOut = async () => {
     await auth().signOut();
-    navigation.navigate("Starter");
+    // navigation.navigate("Starter");
   };
 
   const handleSaveDisplayName = async () => {
