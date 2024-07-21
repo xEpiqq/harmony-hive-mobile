@@ -40,6 +40,8 @@ export default function Page() {
       setIsLoading(false);
     }, 2000); // Adjust this timeout as needed
   }, []);
+
+  console.log("Index baby!")
   
   
 

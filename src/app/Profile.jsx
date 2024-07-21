@@ -15,6 +15,8 @@ import auth from "@react-native-firebase/auth";
 import { UserContext } from "@/contexts/UserContext";
 import { StateContext } from "@/contexts/StateContext";
 import { SafeAreaView } from "react-native-safe-area-context";
+import auth from "@react-native-firebase/auth";
+import { appleAuth } from "@invertase/react-native-apple-authentication";
 
 function Profile() {
   const user = useContext(UserContext);
@@ -51,7 +53,30 @@ function Profile() {
     setEditingName(false);
   };
 
+  async function revokeSignInWithAppleToken() {
+    // Check if the user is signed in with Apple
+    if (auth().currentUser.providerData[0].providerId !== "apple.com") {
+      console.log("User is not signed in with Apple");
+      return;
+    }
+    // Get an authorizationCode from Apple
+    const { authorizationCode } = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.REFRESH,
+    });
+
+    // Ensure Apple returned an authorizationCode
+    if (!authorizationCode) {
+      throw new Error(
+        "Apple Revocation failed - no authorizationCode returned"
+      );
+    }
+
+    // Revoke the token
+    return auth().revokeToken(authorizationCode);
+  }
+
   const handleDeleteAccount = async () => {
+    revokeSignInWithAppleToken();
     if (confirmationText === `delete ${user.displayName}'s account`) {
       try {
         const userAuth = auth().currentUser;
@@ -59,7 +84,9 @@ function Profile() {
         navigation.navigate("Starter");
       } catch (error) {
         console.error("Error deleting account: ", error);
-        setDeleteError("Failed to delete account (signin must be very recent--try signing out, signing in again, and deleting)");
+        setDeleteError(
+          "Failed to delete account (signin must be very recent--try signing out, signing in again, and deleting)"
+        );
       }
     } else {
       setDeleteError("Confirmation text is incorrect.");
@@ -265,15 +292,16 @@ function Profile() {
               backgroundColor: "rgba(0,0,0,0.5)",
             }}
           >
-            <View
-              className="w-full h-full bg-white p-20 flex justify-center"
-            >
-              <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 4 }}>
+            <View className="w-full h-full bg-white p-20 flex justify-center">
+              <Text
+                style={{ fontSize: 18, fontWeight: "bold", marginBottom: 4 }}
+              >
                 Confirm Account Deletion
               </Text>
               <Text className="text-red-500">deletion can't be undone</Text>
               <Text style={{ marginBottom: 16 }}>
-                Type "delete {user.displayName}'s account" to confirm account deletion.
+                Type "delete {user.displayName}'s account" to confirm account
+                deletion.
               </Text>
               <TextInput
                 value={confirmationText}
