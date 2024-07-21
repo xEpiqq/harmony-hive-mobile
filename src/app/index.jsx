@@ -47,7 +47,8 @@ export default function Page() {
 
   useEffect(() => {
     // print email
-    console.log(user);
+    console.log(user.uid);
+    console.log("Yeah the user is in the index");
   }, [user]);
 
   return (
@@ -67,17 +68,14 @@ export default function Page() {
             resizeMode="contain"
           />
         </View>
-      ) : !user ? (
+      ) : !user?.uid ? (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {/* <Stack.Screen
+          <Stack.Screen
             name="Starter"
             component={Starter}
             options={{ headerShown: false }}
             setShowBottomNav={setShowBottomNav}
-          /> */}
-          <Starter
-            setShowBottomNav={setShowBottomNav}
-            />
+          />
         </Stack.Navigator>
       ) : (
         <>

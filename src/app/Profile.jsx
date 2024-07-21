@@ -10,8 +10,6 @@ import {
   Platform,
   Modal,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import auth from "@react-native-firebase/auth";
 import { UserContext } from "@/contexts/UserContext";
 import { StateContext } from "@/contexts/StateContext";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,7 +19,6 @@ import { appleAuth } from "@invertase/react-native-apple-authentication";
 function Profile() {
   const user = useContext(UserContext);
   const state = useContext(StateContext);
-  const navigation = useNavigation();
   const [newChoirCode, setNewChoirCode] = useState("");
   const [joinChoirError, setJoinChoirError] = useState("");
   const [editingName, setEditingName] = useState(false);
@@ -77,11 +74,10 @@ function Profile() {
 
   const handleDeleteAccount = async () => {
     revokeSignInWithAppleToken();
-    if (confirmationText === `delete ${user.displayName}'s account`) {
+    if (confirmationText === `delete`) {
       try {
         const userAuth = auth().currentUser;
         await userAuth.delete();
-        navigation.navigate("Starter");
       } catch (error) {
         console.error("Error deleting account: ", error);
         setDeleteError(
@@ -300,7 +296,7 @@ function Profile() {
               </Text>
               <Text className="text-red-500">deletion can't be undone</Text>
               <Text style={{ marginBottom: 16 }}>
-                Type "delete {user.displayName}'s account" to confirm account
+                Type "delete" to confirm account
                 deletion.
               </Text>
               <TextInput
