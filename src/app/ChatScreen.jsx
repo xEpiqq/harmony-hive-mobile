@@ -9,9 +9,8 @@ import {
   KeyboardAvoidingView,
   Modal,
   Animated,
-  VirtualizedList
+  VirtualizedList,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import firestore from "@react-native-firebase/firestore";
 import { format } from "date-fns";
 import DocumentPicker from "react-native-document-picker";
@@ -32,7 +31,6 @@ function ChatScreen({ onBack, prefetchMessages }) {
   const user = useContext(UserContext);
   const state = useContext(StateContext);
   const choir = useContext(ChoirContext);
-  const navigation = useNavigation();
   const [messages, setMessages] = useState(prefetchMessages);
   const [inputText, setInputText] = useState("");
   const [showIcons, setShowIcons] = useState(false);
@@ -47,12 +45,11 @@ function ChatScreen({ onBack, prefetchMessages }) {
   const slideAnim = useRef(new Animated.Value(-300)).current;
   const flatListRef = useRef(null);
 
-
   useEffect(() => {
     setChoirId(state.choirId);
     if (state.choirId && user.channels) {
       const channelsForChoir = user.channels[state.choirId];
-  
+
       if (channelsForChoir) {
         if (channelsForChoir["Main"]) {
           setCurrentChannel(channelsForChoir["Main"]);
@@ -65,11 +62,17 @@ function ChatScreen({ onBack, prefetchMessages }) {
       }
     }
   }, [state.choirId, user.channels]);
-  
-  
 
   useEffect(() => {
     if (choirId && currentChannel) {
+      // check if the user is in any channels
+      if (
+        !user.channels ||
+        !user.channels[choirId] ||
+        !user.channels[choirId][currentChannel]
+      ) {
+        return;
+      }
       const unsubscribe = firestore()
         .collection("choirs")
         .doc(choirId)
@@ -84,11 +87,10 @@ function ChatScreen({ onBack, prefetchMessages }) {
           }));
           setMessages(fetchedMessages);
         });
-  
+
       return () => unsubscribe();
     }
   }, [choirId, currentChannel]);
-  
 
   const handleSendMessage = async () => {
     if (inputText.trim() !== "" || selectedFile) {
@@ -105,7 +107,6 @@ function ChatScreen({ onBack, prefetchMessages }) {
         temp: true,
       };
 
-      setMessages((prevMessages) => [messageData, ...prevMessages]);
       setInputText("");
       setSelectedFile(null);
 
@@ -126,18 +127,14 @@ function ChatScreen({ onBack, prefetchMessages }) {
             },
           });
 
-        setMessages((prevMessages) =>
-          prevMessages.map((msg) =>
-            msg.id === tempMessageId ? { ...msg, id: messageRef.id, temp: false } : msg
-          )
-        );
-
         if (selectedFile) {
           uploadFile(selectedFile, messageRef.id);
         }
       } catch (error) {
         console.log("Error sending message:", error);
-        setMessages((prevMessages) => prevMessages.filter((msg) => msg.id !== tempMessageId));
+        setMessages((prevMessages) =>
+          prevMessages.filter((msg) => msg.id !== tempMessageId)
+        );
       }
     }
   };
@@ -181,7 +178,9 @@ function ChatScreen({ onBack, prefetchMessages }) {
         ? userReactions
         : [...userReactions, emojiObject.emoji];
 
-      await messageRef.update({ [`reactions.${user.uid}`]: updatedUserReactions });
+      await messageRef.update({
+        [`reactions.${user.uid}`]: updatedUserReactions,
+      });
     } catch (error) {
       console.log("Error adding reaction:", error);
     }
@@ -238,18 +237,28 @@ function ChatScreen({ onBack, prefetchMessages }) {
   };
 
   const renderItem = ({ item, index }) => {
-    const previousItem = index < messages.length - 1 ? messages[index + 1] : null;
+    const previousItem =
+      index < messages.length - 1 ? messages[index + 1] : null;
     const isSameUser = previousItem && item.user.id === previousItem.user.id;
     const showProfilePicture =
       !isSameUser ||
       (previousItem &&
         item.createdAt &&
         previousItem.createdAt &&
-        (item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).getTime() -
-          (previousItem.createdAt.toDate ? previousItem.createdAt.toDate() : previousItem.createdAt).getTime() > 10 * 60 * 1000);
+        (item.createdAt.toDate
+          ? item.createdAt.toDate()
+          : item.createdAt
+        ).getTime() -
+          (previousItem.createdAt.toDate
+            ? previousItem.createdAt.toDate()
+            : previousItem.createdAt
+          ).getTime() >
+          10 * 60 * 1000);
 
     const handleReactionPress = (emoji, messageId) => {
-      const userReactions = item.reactions ? item.reactions[user.uid] || [] : [];
+      const userReactions = item.reactions
+        ? item.reactions[user.uid] || []
+        : [];
       if (userReactions.includes(emoji)) {
         handleRemoveReaction(messageId, emoji);
       } else {
@@ -258,56 +267,84 @@ function ChatScreen({ onBack, prefetchMessages }) {
       }
     };
 
-    const createdAtDate = item.createdAt ? (item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt) : new Date();
+    const createdAtDate = item.createdAt
+      ? item.createdAt.toDate
+        ? item.createdAt.toDate()
+        : item.createdAt
+      : new Date();
 
     return (
       <View className="flex-row items-start px-4">
         {showProfilePicture && (
-          <Image source={{ uri: item.user.avatar }} className="w-9 h-9 rounded-xl" />
+          <Image
+            source={{ uri: item.user.avatar }}
+            className="w-9 h-9 rounded-xl"
+          />
         )}
-        <View className={`rounded-xl w-full ${showProfilePicture ? "" : "ml-9"}`}>
+        <View
+          className={`rounded-xl w-full ${showProfilePicture ? "" : "ml-9"}`}
+        >
           {showProfilePicture && (
             <View className="flex-row items-center gap-2 pl-4">
               <Text className="text-sm font-semibold">{item.user.name}</Text>
-              <Text className="text-xs text-gray-400">{format(createdAtDate, "hh:mm a")}</Text>
+              <Text className="text-xs text-gray-400">
+                {format(createdAtDate, "hh:mm a")}
+              </Text>
             </View>
           )}
-          <TouchableOpacity onLongPress={() => handleNewReaction(item.id)} className="w-full">
-            <Text className={`text-base text-gray-800 px-4 pb-2 ${item.temp ? "opacity-50" : ""}`}>
+          <TouchableOpacity
+            onLongPress={() => handleNewReaction(item.id)}
+            className="w-full"
+          >
+            <Text
+              className={`text-base text-gray-800 px-4 pb-2 ${
+                item.temp ? "opacity-50" : ""
+              }`}
+            >
               {item.message}
             </Text>
           </TouchableOpacity>
-          {item.file && (
-            item.file.type.startsWith("image/") ? (
+          {item.file &&
+            (item.file.type.startsWith("image/") ? (
               loadingImages[item.id] ? (
                 <View className="w-48 h-48 bg-gray-200 rounded-lg mt-2" />
               ) : (
-                <Image source={{ uri: item.file.url }} className="w-48 h-48 rounded-lg mt-2" resizeMode="cover" />
+                <Image
+                  source={{ uri: item.file.url }}
+                  className="w-48 h-48 rounded-lg mt-2"
+                  resizeMode="cover"
+                />
               )
             ) : (
               <Text className="text-gray-600 px-4 pb-2">{item.file.name}</Text>
-            )
-          )}
+            ))}
           <View className="flex-row items-center px-4 pb-2">
             {Object.entries(
-              Object.entries(item.reactions || {}).reduce((acc, [userId, reaction]) => {
-                const emojis = Array.isArray(reaction) ? reaction : [reaction];
-                emojis.forEach((emoji) => {
-                  acc[emoji] = acc[emoji] || { count: 0, userIds: [] };
-                  acc[emoji].count++;
-                  if (!acc[emoji].userIds.includes(userId)) {
-                    acc[emoji].userIds.push(userId);
-                  }
-                });
-                return acc;
-              }, {})
+              Object.entries(item.reactions || {}).reduce(
+                (acc, [userId, reaction]) => {
+                  const emojis = Array.isArray(reaction)
+                    ? reaction
+                    : [reaction];
+                  emojis.forEach((emoji) => {
+                    acc[emoji] = acc[emoji] || { count: 0, userIds: [] };
+                    acc[emoji].count++;
+                    if (!acc[emoji].userIds.includes(userId)) {
+                      acc[emoji].userIds.push(userId);
+                    }
+                  });
+                  return acc;
+                },
+                {}
+              )
             )
               .sort(([, a], [, b]) => b.count - a.count)
               .map(([emoji, { userIds, count }]) => (
                 <TouchableOpacity
                   key={emoji}
                   onPress={() => handleReactionPress(emoji, item.id)}
-                  className={`flex-row items-center space-x-1 rounded-full px-2 py-1 ${userIds.includes(user.uid) ? "bg-blue-100" : ""}`}
+                  className={`flex-row items-center space-x-1 rounded-full px-2 py-1 ${
+                    userIds.includes(user.uid) ? "bg-blue-100" : ""
+                  }`}
                 >
                   <Text>{emoji}</Text>
                   {count > 1 && <Text className="text-xs">{count}</Text>}
@@ -335,17 +372,21 @@ function ChatScreen({ onBack, prefetchMessages }) {
       }).start();
     }
   };
-  
+
   const handleChannelSelect = (channelName, channelId) => {
     setCurrentChannel(channelId);
     setCurrentChannelName(channelName);
     toggleModal(); // Close the modal after selection
   };
-  
 
   return (
-    <SafeAreaView style={{ width: "100%", height: "100%", backgroundColor: "white" }}>
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} className="flex-1">
+    <SafeAreaView
+      style={{ width: "100%", height: "100%", backgroundColor: "white" }}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1"
+      >
         <View className="flex-row items-center justify-between p-6 border-b border-gray-300">
           <TouchableOpacity onPress={onBack}>
             <Text className="text-lg text-blue-600">Back</Text>
@@ -367,11 +408,18 @@ function ChatScreen({ onBack, prefetchMessages }) {
           getItem={(data, index) => (data ? data[index] : null)}
         />
 
-        <View className={`flex w-full h-14 justify-center ${showIcons ? "flex-col h-12" : "flex-row items-center px-2"} rounded-t-xl border-t border-r border-l border-[#d6d6d6]`}>
+        <View
+          className={`flex w-full h-14 justify-center ${
+            showIcons ? "flex-col h-12" : "flex-row items-center px-2"
+          } rounded-t-xl border-t border-r border-l border-[#d6d6d6]`}
+        >
           {!showIcons && (
             <TouchableOpacity onPress={handleFileUpload}>
               <View className="w-9 h-9 flex items-center justify-center bg-[#eeeeee] rounded-full">
-                <SvgXml className="h-4 w-4 text-[#585858]" xml={microphoneSvg} />
+                <SvgXml
+                  className="h-4 w-4 text-[#585858]"
+                  xml={microphoneSvg}
+                />
               </View>
             </TouchableOpacity>
           )}
@@ -405,7 +453,10 @@ function ChatScreen({ onBack, prefetchMessages }) {
             <View className="flex flex-row gap-2">
               <TouchableOpacity onPress={handleFileUpload}>
                 <View className="w-8 h-8 flex items-center justify-center bg-[#eeeeee] rounded-full">
-                  <SvgXml className="h-4 w-4 text-[#585858]" xml={microphoneSvg} />
+                  <SvgXml
+                    className="h-4 w-4 text-[#585858]"
+                    xml={microphoneSvg}
+                  />
                 </View>
               </TouchableOpacity>
 
@@ -424,9 +475,14 @@ function ChatScreen({ onBack, prefetchMessages }) {
             <TouchableOpacity onPress={handleSendMessage}>
               <View
                 className="w-8 h-8 flex justify-center items-center rounded-full"
-                style={{ backgroundColor: inputText ? "#ffcc04" : "transparent" }}
+                style={{
+                  backgroundColor: inputText ? "#ffcc04" : "transparent",
+                }}
               >
-                <SvgXml className="w-5 h-5" xml={inputText ? sendSvgWhite : sendSvgGray} />
+                <SvgXml
+                  className="w-5 h-5"
+                  xml={inputText ? sendSvgWhite : sendSvgGray}
+                />
               </View>
             </TouchableOpacity>
           </View>
@@ -440,39 +496,57 @@ function ChatScreen({ onBack, prefetchMessages }) {
       </KeyboardAvoidingView>
 
       <Modal visible={isModalVisible} animationType="none" transparent>
-  <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}>
-    <Animated.View
-      style={{
-        transform: [{ translateX: slideAnim }],
-        position: "absolute",
-        left: 0,
-        top: 0,
-        width: "80%",
-        height: "100%",
-        backgroundColor: "white",
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 5,
-      }}
-    >
-      <View style={{ padding: 16 }}>
-        <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}>Select Channel</Text>
-        {Object.entries(user.channels[state.choirId]).map(([channelName, channelId]) => (
-          <TouchableOpacity
-            key={channelId}
-            onPress={() => handleChannelSelect(channelName, channelId)}
-            style={{ paddingVertical: 8 }}
+        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}>
+          <Animated.View
+            style={{
+              transform: [{ translateX: slideAnim }],
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: "80%",
+              height: "100%",
+              backgroundColor: "white",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 3.84,
+              elevation: 5,
+            }}
           >
-            <Text style={{ fontSize: 16 }}>{channelName}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </Animated.View>
-  </View>
-</Modal>
-
+            {user.channels.length > 0 ? (
+              <View style={{ padding: 16 }}>
+                <Text
+                  style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}
+                >
+                  Select Channel
+                </Text>
+                {Object.entries(user.channels[state.choirId]).map(
+                  ([channelName, channelId]) => (
+                    <TouchableOpacity
+                      key={channelId}
+                      onPress={() =>
+                        handleChannelSelect(channelName, channelId)
+                      }
+                      style={{ paddingVertical: 8 }}
+                    >
+                      <Text style={{ fontSize: 16 }}>{channelName}</Text>
+                    </TouchableOpacity>
+                  )
+                )}
+              </View>
+            ) :
+              <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}>
+                  No Channels
+                </Text>
+                <Text style={{ fontSize: 16 }}>
+                  You are not a member of any channels
+                </Text>
+              </View>
+            }
+          </Animated.View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

@@ -16,6 +16,7 @@ import firestore from "@react-native-firebase/firestore";
 import { UserContext } from "@/contexts/UserContext";
 import { useNavigation } from "@react-navigation/native";
 import { AppleButton } from "@invertase/react-native-apple-authentication";
+import { appleAuth } from "@invertase/react-native-apple-authentication";
 
 GoogleSignin.configure({
   webClientId:
@@ -187,7 +188,7 @@ function Starter({ setShowBottomNav }) {
             [choirJoinUid]: {
               Main: mainChannelId,
             },
-          },
+          },  
         });
 
       console.log("User added to Firestore!");
@@ -264,6 +265,7 @@ function Starter({ setShowBottomNav }) {
     // Add Apple Sign-In logic for Android here
     // This is an example using Firebase Authentication
     if (Platform.OS == "ios") {
+      console.log("Signing in with Apple...");
       // Start the sign-in request
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
@@ -277,6 +279,8 @@ function Starter({ setShowBottomNav }) {
         throw new Error("Apple Sign-In failed - no identify token returned");
       }
 
+      console.log("creating apple credential...");
+
       // Create a Firebase credential from the response
       const { identityToken, nonce } = appleAuthRequestResponse;
       const appleCredential = auth.AppleAuthProvider.credential(
@@ -284,8 +288,70 @@ function Starter({ setShowBottomNav }) {
         nonce
       );
 
+      console.log("signing in with apple credential...");
       // Sign the user in with the credential
-      return auth().signInWithCredential(appleCredential);
+      await auth()
+        .signInWithCredential(appleCredential)
+        .then((result) => {
+          const credential = result.credential;
+
+          // Signed-in user info
+          const user = result.user;
+
+          // The signed-in user info.
+          const userDocRef = firestore().collection("users").doc(user.uid);
+          userDocRef.get().then((docSnapshot) => {
+            if (!docSnapshot.exists) {
+              // Check the fields exist
+              if (!user.email) {
+                setCurrentScreen(1);
+                return;
+              }
+
+              // New user
+              const capitalizedFirstName =
+                firstName.charAt(0).toUpperCase() +
+                firstName.slice(1).toLowerCase();
+              const capitalizedLastName =
+                lastName.charAt(0).toUpperCase() +
+                lastName.slice(1).toLowerCase();
+
+              // Fetch the Main channel ID
+              firestore()
+                .collection("choirs")
+                .doc(choirJoinUid)
+                .collection("channels")
+                .where("name", "==", "Main")
+                .get()
+                .then((channelsSnapshot) => {
+                  let mainChannelId = "";
+                  if (!channelsSnapshot.empty) {
+                    mainChannelId = channelsSnapshot.docs[0].id;
+                  }
+
+                  userDocRef.set({
+                    choir_selected: choirJoinUid,
+                    choirs_joined: [choirJoinUid],
+                    email: user.email,
+                    emailVerified: user.emailVerified,
+                    image: user.photoURL,
+                    name: `${capitalizedFirstName} ${capitalizedLastName}`,
+                    part: satbChoice,
+                    user_type: "student",
+                    messaging_channels: {
+                      [choirJoinUid]: {
+                        Main: mainChannelId,
+                      },
+                    },
+                  });
+                  console.log("New user added to Firestore!");
+                });
+            } else {
+              console.log("User already exists in Firestore.");
+            }
+          });
+        });
+        return;
     }
 
     const provider = new auth.OAuthProvider("apple.com");
@@ -673,11 +739,14 @@ function Starter({ setShowBottomNav }) {
                       </Text>
                     </TouchableOpacity>
                   ) : (
-                    <AppleButton
-                      buttonStyle={AppleButton.Style.WHITE}
-                      buttonType={AppleButton.Type.SIGN_UP}
-                      onPress={onAppleButtonPress}
-                    />
+                    <View className="mt-4 h-12 flex flex-row justify-center items-center border flex-1 p-1 rounded-xl border-b-4 bg-white border-slate-300">
+                      <AppleButton
+                        style={{ width: "100%", height: "100%" }}
+                        buttonStyle={AppleButton.Style.WHITE}
+                        buttonType={AppleButton.Type.SIGN_IN}
+                        onPress={onAppleButtonPress}
+                      />
+                    </View>
                   )}
                 </View>
                 <Text className="text-center text-sm text-gray-500 mb-4">
@@ -856,11 +925,14 @@ function Starter({ setShowBottomNav }) {
                       </Text>
                     </TouchableOpacity>
                   ) : (
-                    <AppleButton
-                      buttonStyle={AppleButton.Style.WHITE}
-                      buttonType={AppleButton.Type.SIGN_IN}
-                      onPress={onAppleButtonPress}
-                    />
+                    <View className="mt-4 h-12 flex flex-row justify-center items-center border flex-1 p-1 rounded-xl border-b-4 bg-white border-slate-300">
+                      <AppleButton
+                        style={{ width: "100%", height: "100%" }}
+                        buttonStyle={AppleButton.Style.WHITE}
+                        buttonType={AppleButton.Type.SIGN_IN}
+                        onPress={onAppleButtonPress}
+                      />
+                    </View>
                   )}
                 </View>
                 <Text className="text-center text-sm text-gray-500 mb-4">
