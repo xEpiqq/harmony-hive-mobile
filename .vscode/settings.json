@@ -17,7 +17,6 @@
         "babel.config.js": true,
         ".vscode": true,
         ".expo": true,
-        "package.json": true,
         "src/global.css": true
     },
     "hide-files.files": [
@@ -32,7 +31,6 @@
         "babel.config.js",
         ".vscode",
         ".expo",
-        "package.json",
         "src/global.css"
     ],
 }

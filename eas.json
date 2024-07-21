@@ -10,7 +10,6 @@
     "production": {
       "distribution": "store",
       "android": {
-        // "buildType": "aab",
         "resourceClass": "medium"
       }
     }
