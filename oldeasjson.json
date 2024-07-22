@@ -1,18 +1,18 @@
 {
-  "cli": {
-    "version": ">= 9.0.0"
-  },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "preview": {
-      "distribution": "internal"
-    },
-    "production": {}
+    "production": {
+      "distribution": "store",
+      "android": {
+        "resourceClass": "medium"
+      }
+    }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-services.json",
+        "track": "production"
+      }
+    }
   }
 }

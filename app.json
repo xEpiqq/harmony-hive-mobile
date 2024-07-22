@@ -12,7 +12,11 @@
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
       "bundleIdentifier": "com.xepiq.harmonyhive",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "entitlements": {
+        "com.apple.developer.applesignin": ["Default"]
+      },
+      "buildNumber": "1.0.1"
     },
     "name": "Harmony Hive",
     "scheme": "acme",

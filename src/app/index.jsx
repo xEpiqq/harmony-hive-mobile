@@ -41,6 +41,16 @@ export default function Page() {
     }, 2000); // Adjust this timeout as needed
   }, []);
 
+  console.log("Index baby!")
+  
+  
+
+  useEffect(() => {
+    // print email
+    console.log(user.uid);
+    console.log("Yeah the user is in the index");
+  }, [user]);
+
   return (
     <SafeAreaProvider>
       {isLoading ? (
@@ -58,17 +68,14 @@ export default function Page() {
             resizeMode="contain"
           />
         </View>
-      ) : !user ? (
+      ) : !user?.uid ? (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {/* <Stack.Screen
+          <Stack.Screen
             name="Starter"
             component={Starter}
             options={{ headerShown: false }}
             setShowBottomNav={setShowBottomNav}
-          /> */}
-          <Starter
-            setShowBottomNav={setShowBottomNav}
-            />
+          />
         </Stack.Navigator>
       ) : (
         <>
