@@ -17,7 +17,8 @@
         "babel.config.js": true,
         ".vscode": true,
         ".expo": true,
-        "src/global.css": true
+        "src/global.css": true,
+        "oldeasjson.json": true
     },
     "hide-files.files": [
         "tailwind.config.js",
@@ -31,6 +32,7 @@
         "babel.config.js",
         ".vscode",
         ".expo",
-        "src/global.css"
+        "src/global.css",
+        "oldeasjson.json"
     ],
 }
