@@ -1,9 +1,7 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useContext } from "react";
 import { View, Text, FlatList } from "react-native";
-import firestore from "@react-native-firebase/firestore";
 
 import { ChoirContext } from "@/contexts/ChoirContext";
-import CherryBlossomBackground from "../components/CherryBlossomBackground";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 function Calendar() {
