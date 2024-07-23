@@ -15,6 +15,7 @@ import { StateContext } from "@/contexts/StateContext";
 import { SafeAreaView } from "react-native-safe-area-context";
 import auth from "@react-native-firebase/auth";
 import { appleAuth } from "@invertase/react-native-apple-authentication";
+import firestore from "@react-native-firebase/firestore";
 
 function Profile() {
   const user = useContext(UserContext);
@@ -29,6 +30,10 @@ function Profile() {
 
   const handleChoirSelect = async (choirId) => {
     state.setChoirId(choirId);
+    await firestore()
+      .collection('users')
+      .doc(user.uid)
+      .update({ choir_selected: choirId });
   };
 
   const handleJoinChoir = async () => {
