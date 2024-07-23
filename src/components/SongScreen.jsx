@@ -11,6 +11,7 @@ import {
 
 import AudioPlayer from "@/components/AudioPlayer";
 import MusicSheets from "@/components/MusicSheets";
+import { GrayArrow } from "../../assets/images";
 
 export default function SongScreen({ handleBackPress, scrollX, screenWidth }) {
 
@@ -27,7 +28,7 @@ export default function SongScreen({ handleBackPress, scrollX, screenWidth }) {
         }}
       >
         <Image
-          source={require("../../public/grayarrow.png")}
+          source={GrayArrow}
           style={{ width: 20, height: 20, opacity: 0.7 }}
         />
       </TouchableOpacity>

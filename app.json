@@ -1,7 +1,7 @@
 {
   "expo": {
     "splash": {
-      "image": "./public/launch_screen.png",
+      "image": "./assets/images/splashscreens/launch-screen.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -22,7 +22,7 @@
     "scheme": "acme",
     "userInterfaceStyle": "automatic",
     "orientation": "portrait",
-    "icon": "./public/icon.png",
+    "icon": "./assets/images/icon/harmonyhive/harmony-hive-icon.png",
     "web": {
       "output": "static",
       "bundler": "metro"

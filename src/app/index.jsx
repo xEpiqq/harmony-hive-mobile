@@ -12,6 +12,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import Starter from "./Starter";
 import "expo-dev-client";
 import { useNavigation } from "@react-navigation/native";
+import { LoadingScreen } from "../../assets/images";
 
 import { UserContext } from "@/contexts/UserContext";
 
@@ -60,7 +61,7 @@ export default function Page() {
           }}
         >
           <Image
-            source={require("../../public/loadingscreen.png")}
+            source={LoadingScreen}
             style={{ width: "100%", height: "100%" }}
             resizeMode="contain"
           />
