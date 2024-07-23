@@ -14,6 +14,7 @@ import {
   Dimensions,
   BackHandler,
   ActivityIndicator,
+  StatusBar
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -24,6 +25,7 @@ import { ChoirContext } from "@/contexts/ChoirContext";
 import { StateContext } from "@/contexts/StateContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SongScreen from "../components/SongScreen";
+import ScoreBoard from "../components/ScoreBoard";
 
 const GameScreen = ({ setShowBottomNav }) => {
   const { width: screenWidth } = Dimensions.get("window");
@@ -52,6 +54,14 @@ const GameScreen = ({ setShowBottomNav }) => {
       setIsLoading(false);
     }
   }, [state.choirId]);
+
+  useEffect(() => {
+    if (state.songId) {
+      setShowBottomNav(false);
+    } else {
+      setShowBottomNav(true);
+    }
+  }, [state.songId, setShowBottomNav]);
 
   const paginationDots = useMemo(
     () =>
@@ -118,27 +128,24 @@ const GameScreen = ({ setShowBottomNav }) => {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar animated={true} hidden={false} barStyle="dark-content" backgroundColor="#FFDE1A" />
+
       <SafeAreaView
         edges={["top"]}
-        // This is the top safe area
-        // Changing the background color will change the top safe area
-        // style={{ width: "100%", height: "100%", backgroundColor: "#FFCE00" }}
         style={{ width: "100%", height: "100%", backgroundColor: "white" }}
       >
         <SafeAreaView
           edges={["left", "right"]}
           style={{ width: "100%", height: "100%", backgroundColor: "white" }}
         >
-          {/* {!state.songId ? (
+          {!state.songId ? (
             <ScoreBoard />
-          ) : null} */}
+          ) : null}
 
           <View className="flex-1">
             {state.songId ? (
               <View style={{ flex: 1 }} className="bg-white">
-                {true && (
-                  <SongScreen handleBackPress={handleBackPress} scrollX={scrollX} screenWidth={screenWidth} />
-                )}
+                <SongScreen handleBackPress={handleBackPress} scrollX={scrollX} screenWidth={screenWidth} />
               </View>
             ) : (
               <>

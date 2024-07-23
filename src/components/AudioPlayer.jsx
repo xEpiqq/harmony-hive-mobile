@@ -1,10 +1,7 @@
-import React, { useContext } from "react";
-import { useState, useRef } from "react";
-import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
+import React, { useContext, useState, useRef } from "react";
+import { View, Text, TouchableOpacity, Image, StyleSheet, ActivityIndicator } from "react-native";
 import Video from "react-native-video";
 import Slider from "@react-native-community/slider";
-import { ActivityIndicator } from "react-native";
-
 import { StateContext } from "@/contexts/StateContext";
 import { ChoirContext } from "@/contexts/ChoirContext";
 
@@ -21,6 +18,7 @@ const AudioPlayer = () => {
 
   const pauseIcon = require("../../public/pause.png");
   const playIcon = require("../../public/play.png");
+  const grayedPlayIcon = require("../../public/gray-play.png");
 
   const songId = state?.songId;
   const song = choir?.songs.find((s) => s.songId === songId);
@@ -83,32 +81,33 @@ const AudioPlayer = () => {
 
       <View>
         <View style={styles.controlsContainer}>
-          {loading ? (
-            <View style={styles.loading}>
-              <ActivityIndicator size="large" color="#FFF" />
-            </View>
-          ) : (
-            <View className="flex-row items-center justify-center px-4 w-full">
+          <View style={styles.controls}>
+            {loading ? (
+              <Image
+                source={grayedPlayIcon}
+                style={styles.playPauseIcon}
+              />
+            ) : (
               <TouchableOpacity onPress={togglePlay}>
                 <Image
                   source={paused ? playIcon : pauseIcon}
                   style={styles.playPauseIcon}
                 />
               </TouchableOpacity>
-              <Slider
-                style={styles.slider}
-                minimumValue={0}
-                maximumValue={Math.max(totalLength, 1, currentPosition + 1)}
-                minimumTrackTintColor={"#fff"}
-                maximumTrackTintColor={"grey"}
-                onSlidingComplete={onSeek}
-                value={currentPosition}
-              />
-              <Text style={styles.timeText}>
-                {toHHMMSS(currentPosition)} / {toHHMMSS(totalLength)}
-              </Text>
-            </View>
-          )}
+            )}
+            <Slider
+              style={styles.slider}
+              minimumValue={0}
+              maximumValue={Math.max(totalLength, 1, currentPosition + 1)}
+              minimumTrackTintColor={"#fff"}
+              maximumTrackTintColor={"grey"}
+              onSlidingComplete={onSeek}
+              value={currentPosition}
+            />
+            <Text style={styles.timeText}>
+              {toHHMMSS(currentPosition)} / {toHHMMSS(totalLength)}
+            </Text>
+          </View>
         </View>
       </View>
     </View>
@@ -120,8 +119,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  loading: {
-    margin: 16,
+  controls: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    paddingHorizontal: 16,
   },
   playPauseIcon: {
     height: 30,
@@ -136,6 +139,12 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     marginLeft: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 200,
   },
 });
 

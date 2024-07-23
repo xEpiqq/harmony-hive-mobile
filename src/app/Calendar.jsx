@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { View, Text, FlatList } from "react-native";
+import { View, Text, FlatList, StatusBar } from "react-native";
 
 import { ChoirContext } from "@/contexts/ChoirContext";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -113,6 +113,8 @@ function Calendar() {
 
   return (
     <SafeAreaView edges={["top"]} style={{ width: "100%", height: "100%", backgroundColor: "white" }}>
+      <StatusBar animated={true} hidden={false} barStyle="dark-content" backgroundColor="white" />
+
       <View className="flex-1 bg-white">
         <View className="flex-row justify-between flex-col p-4 border-b border-gray-200">
           <Text className="text-xl font-bold">Calendar Events</Text>

@@ -2,10 +2,10 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   StyleSheet,
-  StatusBar,
   SafeAreaView,
   Image,
   UIManager,
+  StatusBar
 } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import "expo-dev-client";
@@ -58,7 +58,8 @@ export default function Page() {
 
   return (
     <SafeAreaProvider>
-      <StatusBar animated={true} hidden={false} barStyle="dark-content" />
+
+      <View className="flex-1">
 
       {isLoading ? (
         <View
@@ -154,6 +155,7 @@ export default function Page() {
           </Tab.Navigator>
         </>
       )}
+      </View>
     </SafeAreaProvider>
   );
 }
