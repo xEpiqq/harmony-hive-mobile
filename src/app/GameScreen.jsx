@@ -138,9 +138,9 @@ const GameScreen = ({ setShowBottomNav }) => {
           edges={["left", "right"]}
           style={{ width: "100%", height: "100%", backgroundColor: "white" }}
         >
-          {!state.songId ? (
+          {/* {!state.songId ? (
             <ScoreBoard />
-          ) : null}
+          ) : null} */}
 
           <View className="flex-1">
             {state.songId ? (
