@@ -1,5 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, StyleSheet, StatusBar, SafeAreaView, Image, UIManager } from "react-native";
+import {
+  View,
+  StyleSheet,
+  StatusBar,
+  SafeAreaView,
+  Image,
+  UIManager,
+} from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import "expo-dev-client";
 import GameScreen from "./GameScreen";
@@ -51,6 +58,8 @@ export default function Page() {
 
   return (
     <SafeAreaProvider>
+      <StatusBar animated={true} hidden={false} barStyle="dark-content" />
+
       {isLoading ? (
         <View
           style={{
@@ -77,8 +86,6 @@ export default function Page() {
         </Stack.Navigator>
       ) : (
         <>
-          <StatusBar animated={true} hidden={false} barStyle="dark-content" />
-
           <Tab.Navigator
             screenOptions={({ route }) => ({
               headerShown: false,
