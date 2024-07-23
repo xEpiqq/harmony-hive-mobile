@@ -279,7 +279,7 @@ function ChatScreen({ onBack, prefetchMessages }) {
 
 export default ChatScreen;
 
-// old component below (just trying to make sure apple doesnt wreck us, everything removed isnt functioning yet)
+// TODO: old component below (just trying to make sure apple doesnt wreck us, everything removed isnt functioning yet)
 
 // import React, { useContext, useEffect, useRef, useState } from "react";
 // import {
