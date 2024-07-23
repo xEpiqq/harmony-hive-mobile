@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, StyleSheet, SafeAreaView, Image, UIManager } from "react-native";
+import { View, StyleSheet, StatusBar, SafeAreaView, Image, UIManager } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import "expo-dev-client";
 import GameScreen from "./GameScreen";
@@ -11,7 +11,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import Starter from "./Starter";
 import "expo-dev-client";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 
 import { UserContext } from "@/contexts/UserContext";
 
@@ -28,7 +28,6 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
   const [showBottomNav, setShowBottomNav] = useState(true);
 
-
   useEffect(() => {
     async function prepare() {
       await SplashScreen.hideAsync();
@@ -41,9 +40,7 @@ export default function Page() {
     }, 2000); // Adjust this timeout as needed
   }, []);
 
-  console.log("Index baby!")
-  
-  
+  console.log("Index baby!");
 
   useEffect(() => {
     // print email
@@ -79,6 +76,8 @@ export default function Page() {
         </Stack.Navigator>
       ) : (
         <>
+          <StatusBar animated={true} hidden={false} barStyle="dark-content" />
+
           <Tab.Navigator
             screenOptions={({ route }) => ({
               headerShown: false,
