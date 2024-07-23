@@ -19,6 +19,7 @@ import SvgXml from "react-native-svg";
 import sendSvgWhite from "../../public/sendSvgWhite.svg";
 import { ChoirContext } from "@/contexts/ChoirContext";
 import { StateContext } from "@/contexts/StateContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const defaultChannels = ["main", "soprano", "alto", "tenor", "bass"];
 
@@ -32,6 +33,7 @@ function ChatScreen({ onBack, prefetchMessages }) {
   const [currentChannel, setCurrentChannel] = useState("main");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(-300)).current;
+  const { top, bottom } = useSafeAreaInsets();
   const flatListRef = useRef(null);
 
   useEffect(() => {
@@ -163,69 +165,78 @@ function ChatScreen({ onBack, prefetchMessages }) {
   };
 
   return (
-    <SafeAreaView
-      style={{ width: "100%", height: "100%", backgroundColor: "white" }}
-    >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
+    <>
+      <SafeAreaView
+        style={{
+          width: "100%",
+          height: "100%",
+          backgroundColor: "white",
+        }}
       >
-        <View className="flex-row items-center justify-between p-6 border-b border-gray-300">
-          <TouchableOpacity onPress={onBack}>
-            <Text className="text-lg text-blue-600">Back</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={toggleModal}>
-            <Text className="text-xl font-bold">#{currentChannel}</Text>
-          </TouchableOpacity>
-          <View className="w-8" />
-        </View>
-
-        <VirtualizedList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          className="flex-1 min-h-0"
-          inverted
-          getItemCount={(data) => (data ? data.length : 0)}
-          getItem={(data, index) => (data ? data[index] : null)}
-        />
-
-        <View
-          className={`flex w-full h-16 justify-between flex-row items-center ${
-            showIcons ? "h-14" : "flex-row items-center px-2"
-          } rounded-t-xl border-t border-r border-l border-[#d6d6d6]`}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1"
         >
-          <TextInput
-            className="flex-1 rounded-xl px-4 placeholder:opacity-[0.8] text-[#1c1c1c] font-medium"
-            placeholder={`Message #${currentChannel}`}
-            value={inputText}
-            onChangeText={setInputText}
-            onFocus={() => setShowIcons(true)}
-            onBlur={() => setShowIcons(false)}
+          <View className="flex-row items-center justify-between p-6 border-b border-gray-300">
+            <TouchableOpacity onPress={onBack}>
+              <Text className="text-lg text-blue-600">Back</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={toggleModal}>
+              <Text className="text-xl font-bold">#{currentChannel}</Text>
+            </TouchableOpacity>
+            <View className="w-8" />
+          </View>
+
+          <VirtualizedList
+            ref={flatListRef}
+            data={messages}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            className="flex-1 min-h-0"
+            inverted
+            getItemCount={(data) => (data ? data.length : 0)}
+            getItem={(data, index) => (data ? data[index] : null)}
           />
 
-<TouchableOpacity onPress={handleSendMessage} className="pr-3">
-  <View
-    className="w-8 h-8 flex justify-center items-center rounded-full"
-    style={{
-      backgroundColor: inputText ? "#ffcc04" : "transparent",
-      opacity: inputText ? 1 : 0.2,
-    }}
-  >
-    <Image className="w-5 h-5" source={require("../../public/send.png")} />
-  </View>
-</TouchableOpacity>
+          <View
+            className={`flex w-full h-16 justify-between flex-row items-center ${
+              showIcons ? "h-14" : "flex-row items-center px-2"
+            } rounded-t-xl border-t border-r border-l border-[#d6d6d6]`}
+          >
+            <TextInput
+              className="flex-1 rounded-xl px-4 placeholder:opacity-[0.8] text-[#1c1c1c] font-medium"
+              placeholder={`Message #${currentChannel}`}
+              value={inputText}
+              onChangeText={setInputText}
+              onFocus={() => setShowIcons(true)}
+              onBlur={() => setShowIcons(false)}
+            />
 
-        </View>
-      </KeyboardAvoidingView>
-
+            <TouchableOpacity onPress={handleSendMessage} className="pr-3">
+              <View
+                className="w-8 h-8 flex justify-center items-center rounded-full"
+                style={{
+                  backgroundColor: inputText ? "#ffcc04" : "transparent",
+                  opacity: inputText ? 1 : 0.2,
+                }}
+              >
+                <Image
+                  className="w-5 h-5"
+                  source={require("../../public/send.png")}
+                />
+              </View>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
       <Modal visible={isModalVisible} animationType="none" transparent>
-        <View style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}>
+        <TouchableOpacity
+          style={{ flex: 1, backgroundColor: "rgba(0,0,0,0.5)" }}
+          onPress={toggleModal}
+        >
           <Animated.View
             style={{
               transform: [{ translateX: slideAnim }],
-              position: "absolute",
               left: 0,
               top: 0,
               width: "80%",
@@ -235,11 +246,19 @@ function ChatScreen({ onBack, prefetchMessages }) {
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.25,
               shadowRadius: 3.84,
+              paddingBottom: bottom,
+              paddingTop: top,
+              paddingHorizontal: 16,
               elevation: 5,
             }}
           >
-            <View style={{ padding: 16 }}>
-              <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}>
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  marginBottom: 16,
+                }}
+              >
                 Select Channel
               </Text>
               {defaultChannels.map((channel) => (
@@ -251,16 +270,14 @@ function ChatScreen({ onBack, prefetchMessages }) {
                   <Text style={{ fontSize: 16 }}>{channel}</Text>
                 </TouchableOpacity>
               ))}
-            </View>
           </Animated.View>
-        </View>
+        </TouchableOpacity>
       </Modal>
-    </SafeAreaView>
+    </>
   );
 }
 
 export default ChatScreen;
-
 
 // old component below (just trying to make sure apple doesnt wreck us, everything removed isnt functioning yet)
 
