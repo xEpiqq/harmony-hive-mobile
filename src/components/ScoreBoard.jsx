@@ -2,8 +2,8 @@ import { View, Text, Image } from "react-native";
 
 export default function ScoreBoard() {
   return (
-    <View className="flex-row relative justify-between px-4 py-3 items-center bg-[#FFDE1A] border-b-4 border-[#FFCE00]">
-      <View className="flex-row items-center">
+    <View className="flex-row relative justify-between px-4 py-6 items-center bg-[#FFDE1A] border-b-4 border-[#FFCE00]">
+      {/* <View className="flex-row items-center">
         <Image
           source={require("../../assets/images/graphics/honey-comb.png")}
           className="h-10 w-10"
@@ -23,7 +23,7 @@ export default function ScoreBoard() {
           source={require("../../assets/images/graphics/honey-comb.png")}
           className="h-6 w-6"
         />
-      </View>
+      </View> */}
     </View>
   );
 }
