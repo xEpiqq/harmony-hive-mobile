@@ -132,7 +132,7 @@ const GameScreen = ({ setShowBottomNav }) => {
 
       <SafeAreaView
         edges={["top"]}
-        style={{ width: "100%", height: "100%", backgroundColor: "white" }}
+        style={{ width: "100%", height: "100%", backgroundColor: "#FFDE1A" }}
       >
         <SafeAreaView
           edges={["left", "right"]}
