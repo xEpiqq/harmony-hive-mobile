@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Modal,
+  StatusBar
 } from "react-native";
 import { UserContext } from "@/contexts/UserContext";
 import { StateContext } from "@/contexts/StateContext";
@@ -114,6 +115,10 @@ function Profile() {
       edges={["top"]}
       style={{ width: "100%", height: "100%", backgroundColor: "white" }}
     >
+
+<StatusBar animated={true} hidden={false} barStyle="dark-content" backgroundColor="white" />
+
+
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}

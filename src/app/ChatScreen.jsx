@@ -10,6 +10,7 @@ import {
   Modal,
   Animated,
   VirtualizedList,
+  StatusBar
 } from "react-native";
 import firestore from "@react-native-firebase/firestore";
 import { format } from "date-fns";
@@ -173,6 +174,10 @@ function ChatScreen({ onBack, prefetchMessages }) {
           backgroundColor: "white",
         }}
       >
+
+      <StatusBar animated={true} hidden={false} barStyle="dark-content" backgroundColor="white" />
+
+
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           className="flex-1"

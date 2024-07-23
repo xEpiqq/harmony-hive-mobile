@@ -19,7 +19,7 @@ export default function StarterWelcome({ navigation }) {
     <SafeAreaView style={{ backgroundColor: "white" }}>
       <View className="flex h-full bg-white items-center justify-between px-4">
         <View className="flex justify-center items-center">
-          <Image className="w-28 h-28 mt-44" source={HoneyComb} />
+          <Image className="w-28 h-28 mt-64" source={HoneyComb} />
           <Image className="w-52 h-8 mt-2" source={HarmonyHiveText} />
           <Text className="text-slate-400 px-20 text-center text-xl mt-2">
             Tell your teacher you practiced without lying.

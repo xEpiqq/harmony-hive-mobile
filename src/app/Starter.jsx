@@ -20,7 +20,7 @@ function Starter() {
 
   return (
     <>
-      <StatusBar animated={true} hidden={false} barStyle="dark-content" />
+      <StatusBar animated={true} hidden={false} barStyle="dark-content" backgroundColor="#FFDE1A" />
 
       <stackNavigator.Navigator initialRouteName="Welcome">
         <stackNavigator.Screen
