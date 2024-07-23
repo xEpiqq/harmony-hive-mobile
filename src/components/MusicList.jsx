@@ -79,10 +79,13 @@ export default function MusicSheets({
           className="w-screen h-screen flex items-center justify-center bg-white -mt-36"
         >
           <TouchableOpacity onPress={() => state.setSongId(song.songId)}>
-            <Text className="bg-white font-thin">
-              Last Opened:{" "}
-              {song.lastOpened ? formatDate(song.lastOpened) : "NEVER..."}
-            </Text>
+            {/* Check if the last opened date is valid */}
+            {lastOpened && (
+              <Text className="bg-white font-thin">
+                Last Opened:{" "}
+                {song.lastOpened ? formatDate(song.lastOpened) : "NEVER..."}
+              </Text>
+            )}
             <View className="relative flex items-center justify-center">
               <CherryBlossomBackground
                 seed={hashStringToNumber(song.name)}

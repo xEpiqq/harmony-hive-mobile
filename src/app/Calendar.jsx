@@ -41,6 +41,14 @@ function Calendar() {
     return `${dayOfWeek}, ${month} ${day}, ${year}`;
   };
 
+  const daysUntil = (dateString) => {
+    const today = new Date();
+    const eventDate = new Date(dateString);
+    const timeDiff = eventDate - today;
+    const days = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+    return days;
+  };
+
   const formatTime = (timeString) => {
     const [hour, minute] = timeString.split(":").map(Number);
     const period = hour >= 12 ? "PM" : "AM";
@@ -92,7 +100,7 @@ function Calendar() {
               fontWeight: "bold",
             }}
           >
-            {isEventPassed(item.date) ? "Passed" : "Upcoming"}
+            {isEventPassed(item.date) ? "Passed" : `Upcoming in ${daysUntil(item.date)} ${daysUntil(item.date) === 1 ? "day" : "days"}`}
           </Text>
         </View>
       </View>
