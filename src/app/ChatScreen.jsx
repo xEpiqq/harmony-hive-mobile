@@ -27,6 +27,8 @@ import happyFaceSvg from "../../public/happyFaceSvg.svg";
 import { ChoirContext } from "@/contexts/ChoirContext";
 import { StateContext } from "@/contexts/StateContext";
 
+const defaultChannels = ["main", "soprano", "alto", "tenor", "bass"];
+
 function ChatScreen({ onBack, prefetchMessages }) {
   const user = useContext(UserContext);
   const state = useContext(StateContext);
@@ -38,41 +40,14 @@ function ChatScreen({ onBack, prefetchMessages }) {
   const [reactionMessageId, setReactionMessageId] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [loadingImages, setLoadingImages] = useState({});
-  const [choirId, setChoirId] = useState(null);
-  const [currentChannel, setCurrentChannel] = useState("");
+  const [currentChannel, setCurrentChannel] = useState("main");
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [currentChannelName, setCurrentChannelName] = useState("");
   const slideAnim = useRef(new Animated.Value(-300)).current;
   const flatListRef = useRef(null);
 
   useEffect(() => {
-    setChoirId(state.choirId);
-    if (state.choirId && user.channels) {
-      const channelsForChoir = user.channels[state.choirId];
-
-      if (channelsForChoir) {
-        if (channelsForChoir["Main"]) {
-          setCurrentChannel(channelsForChoir["Main"]);
-          setCurrentChannelName("Main");
-        } else {
-          console.log("No 'Main' channel found for choirId:", state.choirId);
-        }
-      } else {
-        console.log(`No channels found for choirId: ${state.choirId}`);
-      }
-    }
-  }, [state.choirId, user.channels]);
-
-  useEffect(() => {
-    if (choirId && currentChannel) {
-      // check if the user is in any channels
-      if (
-        !user.channels ||
-        !user.channels[choirId] ||
-        !user.channels[choirId][currentChannel]
-      ) {
-        return;
-      }
+    const choirId = state.choirId;
+    if (choirId) {
       const unsubscribe = firestore()
         .collection("choirs")
         .doc(choirId)
@@ -90,21 +65,18 @@ function ChatScreen({ onBack, prefetchMessages }) {
 
       return () => unsubscribe();
     }
-  }, [choirId, currentChannel]);
+  }, [state.choirId, currentChannel]);
 
   const handleSendMessage = async () => {
-    if (inputText.trim() !== "" || selectedFile) {
-      const tempMessageId = Date.now().toString();
+    if (inputText.trim() || selectedFile) {
       const messageData = {
-        id: tempMessageId,
         message: inputText.trim(),
-        createdAt: new Date(),
+        createdAt: firestore.FieldValue.serverTimestamp(),
         user: {
           id: user.uid,
           name: user.displayName || user.email,
           avatar: user.photoURL || "https://via.placeholder.com/150",
         },
-        temp: true,
       };
 
       setInputText("");
@@ -117,24 +89,13 @@ function ChatScreen({ onBack, prefetchMessages }) {
           .collection("channels")
           .doc(currentChannel)
           .collection("messages")
-          .add({
-            message: inputText.trim(),
-            createdAt: firestore.FieldValue.serverTimestamp(),
-            user: {
-              id: user.uid,
-              name: user.displayName || user.email,
-              avatar: user.photoURL || "https://via.placeholder.com/150",
-            },
-          });
+          .add(messageData);
 
         if (selectedFile) {
           uploadFile(selectedFile, messageRef.id);
         }
       } catch (error) {
         console.log("Error sending message:", error);
-        setMessages((prevMessages) =>
-          prevMessages.filter((msg) => msg.id !== tempMessageId)
-        );
       }
     }
   };
@@ -144,10 +105,6 @@ function ChatScreen({ onBack, prefetchMessages }) {
       const pickedFile = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.allFiles],
       });
-      if (!pickedFile || !pickedFile.uri) {
-        console.log("No file selected");
-        return;
-      }
       setSelectedFile(pickedFile);
     } catch (error) {
       console.log("Error selecting file:", error);
@@ -165,7 +122,7 @@ function ChatScreen({ onBack, prefetchMessages }) {
     try {
       const messageRef = firestore()
         .collection("choirs")
-        .doc(choirId)
+        .doc(state.choirId)
         .collection("channels")
         .doc(currentChannel)
         .collection("messages")
@@ -195,7 +152,7 @@ function ChatScreen({ onBack, prefetchMessages }) {
     try {
       const messageRef = firestore()
         .collection("choirs")
-        .doc(choirId)
+        .doc(state.choirId)
         .collection("channels")
         .doc(currentChannel)
         .collection("messages")
@@ -217,13 +174,13 @@ function ChatScreen({ onBack, prefetchMessages }) {
       setLoadingImages((prevState) => ({ ...prevState, [messageId]: true }));
 
       const { uri, name, type } = file;
-      const reference = storage().ref(`choirs/${choirId}/files/${name}`);
+      const reference = storage().ref(`choirs/${state.choirId}/files/${name}`);
       await reference.putFile(uri);
       const downloadURL = await reference.getDownloadURL();
 
       await firestore()
         .collection("choirs")
-        .doc(choir.choirId)
+        .doc(state.choirId)
         .collection("channels")
         .doc(currentChannel)
         .collection("messages")
@@ -373,9 +330,8 @@ function ChatScreen({ onBack, prefetchMessages }) {
     }
   };
 
-  const handleChannelSelect = (channelName, channelId) => {
-    setCurrentChannel(channelId);
-    setCurrentChannelName(channelName);
+  const handleChannelSelect = (channel) => {
+    setCurrentChannel(channel);
     toggleModal(); // Close the modal after selection
   };
 
@@ -392,7 +348,7 @@ function ChatScreen({ onBack, prefetchMessages }) {
             <Text className="text-lg text-blue-600">Back</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleModal}>
-            <Text className="text-xl font-bold">#{currentChannelName}</Text>
+            <Text className="text-xl font-bold">#{currentChannel}</Text>
           </TouchableOpacity>
           <View className="w-8" />
         </View>
@@ -432,7 +388,7 @@ function ChatScreen({ onBack, prefetchMessages }) {
 
           <TextInput
             className="flex-1 rounded-xl px-4 placeholder:opacity-[0.8] text-[#1c1c1c] font-medium"
-            placeholder={`Message #${currentChannelName}`}
+            placeholder={`Message #${currentChannel}`}
             value={inputText}
             onChangeText={setInputText}
             onFocus={() => setShowIcons(true)}
@@ -479,10 +435,11 @@ function ChatScreen({ onBack, prefetchMessages }) {
                   backgroundColor: inputText ? "#ffcc04" : "transparent",
                 }}
               >
-                <SvgXml
+                {/* <SvgXml
                   className="w-5 h-5"
                   xml={inputText ? sendSvgWhite : sendSvgGray}
-                />
+                /> */}
+                <Image className="w-5 h-5" source={require("../../public/send.png")} />
               </View>
             </TouchableOpacity>
           </View>
@@ -513,37 +470,20 @@ function ChatScreen({ onBack, prefetchMessages }) {
               elevation: 5,
             }}
           >
-            {user.channels.length > 0 ? (
-              <View style={{ padding: 16 }}>
-                <Text
-                  style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}
+            <View style={{ padding: 16 }}>
+              <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}>
+                Select Channel
+              </Text>
+              {defaultChannels.map((channel) => (
+                <TouchableOpacity
+                  key={channel}
+                  onPress={() => handleChannelSelect(channel)}
+                  style={{ paddingVertical: 8 }}
                 >
-                  Select Channel
-                </Text>
-                {Object.entries(user.channels[state.choirId]).map(
-                  ([channelName, channelId]) => (
-                    <TouchableOpacity
-                      key={channelId}
-                      onPress={() =>
-                        handleChannelSelect(channelName, channelId)
-                      }
-                      style={{ paddingVertical: 8 }}
-                    >
-                      <Text style={{ fontSize: 16 }}>{channelName}</Text>
-                    </TouchableOpacity>
-                  )
-                )}
-              </View>
-            ) :
-              <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 16 }}>
-                  No Channels
-                </Text>
-                <Text style={{ fontSize: 16 }}>
-                  You are not a member of any channels
-                </Text>
-              </View>
-            }
+                  <Text style={{ fontSize: 16 }}>{channel}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </Animated.View>
         </View>
       </Modal>
