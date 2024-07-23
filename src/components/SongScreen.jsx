@@ -9,14 +9,10 @@ import {
   ScrollView,
 } from "react-native";
 
-import { StateContext } from "@/contexts/StateContext";
-import { UserContext } from "@/contexts/UserContext";
 import AudioPlayer from "@/components/AudioPlayer";
 import MusicSheets from "@/components/MusicSheets";
 
 export default function SongScreen({ handleBackPress, scrollX, screenWidth }) {
-  const state = useContext(StateContext);
-  const user = useContext(UserContext);
 
   return (
     <View className="w-full h-full flex flex-col">
