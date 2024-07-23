@@ -16,16 +16,16 @@ const ActionButton = ({ text, onPress, disabled }) => (
 
 export default function StarterWelcome({ navigation }) {
   return (
-    <SafeAreaView style={{ backgroundColor: "white" }}>
+    <SafeAreaView style={{ backgroundColor: "white", flex: 1 }}>
       <View className="flex h-full bg-white items-center justify-between px-4">
-        <View className="flex justify-center items-center">
-          <Image className="w-28 h-28 mt-64" source={HoneyComb} />
+        <View className="flex flex-1 justify-center h-full items-center">
+          <Image className="w-28 h-28" source={HoneyComb} />
           <Image className="w-52 h-8 mt-2" source={HarmonyHiveText} />
           <Text className="text-slate-400 px-20 text-center text-xl mt-2">
             Tell your teacher you practiced without lying.
           </Text>
         </View>
-        <View className="w-full flex flex-col gap-y-3.5 justify-end mb-3">
+        <View className="w-full flex flex-col gap-y-3.5 justify-end">
           <ActionButton
             text="GET STARTED"
             onPress={() => navigation.push("SATB")}
