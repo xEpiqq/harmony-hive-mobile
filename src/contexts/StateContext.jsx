@@ -1,45 +1,26 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useContext } from "react";
+import { UserContext } from "./UserContext";
 
 export const StateContext = createContext({ songs: [] });
 
 export default function StateContextProvider({ children }) {
-  const [choirId, setChoirId] = useState("TUnrM8z359eWvkV6xnFY");
+  const { user } = useContext(UserContext);
+  const [choirId, setChoirId] = useState("UwQHIotvN12tEj63Hgjw");
   const [songId, setSongId] = useState();
   const [messagingChannel, setMessagingChannel] = useState();
+
+  useEffect(() => {
+    if (user && user.choir_selected) {
+      setChoirId(user.choir_selected);
+    }
+  }, [user]);
 
   useEffect(() => {
     setSongId(undefined);
     setMessagingChannel(undefined);
   }, [choirId]);
-
-//   useEffect(() => {
-//     // Store state in local storage
-//     if (choirId) {
-//       console.log("choirId", choirId);
-//       localStorage.setItem("choirId", choirId);
-//     }
-//   }, [choirId]);
-
-//   useEffect(() => {
-//     if (songId) {
-//       localStorage.setItem("songId", songId);
-//     }
-//   }, [songId]);
-
-//   useEffect(() => {
-//     if (messagingChannel) {
-//       localStorage.setItem("messagingChannel", messagingChannel);
-//     }
-//   }, [messagingChannel]);
-
-//   useEffect(() => {
-//     // Retrieve state from local storage
-//     setChoirId(localStorage.getItem("choirId"));
-//     setSongId(localStorage.getItem("songId"));
-//     setMessagingChannel(localStorage.getItem("messagingChannel"));
-//   }, []);
 
   return (
     <StateContext.Provider

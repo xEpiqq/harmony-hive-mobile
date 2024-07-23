@@ -15,28 +15,26 @@ import {
   Animated,
   Dimensions,
   BackHandler,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFocusEffect } from "@react-navigation/native";
 import MusicList from "@/components/MusicList";
 import { UserContext } from "@/contexts/UserContext";
-
 import { ChoirContext } from "@/contexts/ChoirContext";
 import { StateContext } from "@/contexts/StateContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SongScreen from "../components/SongScreen";
 
 const GameScreen = ({ setShowBottomNav }) => {
-
   const { width: screenWidth } = Dimensions.get("window");
   const user = useContext(UserContext);
-
   const choir = useContext(ChoirContext);
   const state = useContext(StateContext);
   const insets = useSafeAreaInsets();
-
   const scrollX = useRef(new Animated.Value(0)).current;
+  const [isLoading, setIsLoading] = useState(true);
 
   const formatDate = useCallback((dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
@@ -50,6 +48,12 @@ const GameScreen = ({ setShowBottomNav }) => {
   useEffect(() => {
     state.setSongId(undefined);
   }, []);
+
+  useEffect(() => {
+    if (state.choirId) {
+      setIsLoading(false);
+    }
+  }, [state.choirId]);
 
   const paginationDots = useMemo(
     () =>
@@ -105,6 +109,14 @@ const GameScreen = ({ setShowBottomNav }) => {
         BackHandler.removeEventListener("hardwareBackPress", onBackPress);
     }, [handleBackPress])
   );
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
