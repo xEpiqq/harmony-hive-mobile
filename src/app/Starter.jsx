@@ -14,16 +14,6 @@ GoogleSignin.configure({
     "41274838584-680c8sgq16fojgeq7nla5j6foioqq46p.apps.googleusercontent.com",
 });
 
-const screens = {
-  START: 0,
-  SATB: 1,
-  NAME: 2,
-  CODE: 3,
-  CREATE_ACCOUNT: 4,
-  JOIN_CHOIR: 5,
-  LOGIN: 6,
-};
-
 function Starter() {
   const stackNavigator = createNativeStackNavigator();
 
