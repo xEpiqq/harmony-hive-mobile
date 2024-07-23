@@ -120,39 +120,18 @@ const GameScreen = ({ setShowBottomNav }) => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView
         edges={["top"]}
-        style={{ width: "100%", height: "100%", backgroundColor: "#FFCE00" }}
+        // This is the top safe area
+        // Changing the background color will change the top safe area
+        // style={{ width: "100%", height: "100%", backgroundColor: "#FFCE00" }}
+        style={{ width: "100%", height: "100%", backgroundColor: "white" }}
       >
         <SafeAreaView
           edges={["left", "right"]}
           style={{ width: "100%", height: "100%", backgroundColor: "white" }}
         >
-          {!state.songId ? (
-            <>
-              <View className="flex-row relative justify-between px-4 py-3 items-center bg-[#FFCE00]">
-                <View className="flex-row items-center">
-                  <Image
-                    source={require("../../public/honeycomb.png")}
-                    className="h-10 w-10"
-                  />
-                  <Text className="text-white ml-2">1</Text>
-                </View>
-                <View className="flex-row items-center">
-                  <Text className="text-white mx-2">2356</Text>
-                  <Image
-                    source={require("../../public/honeycomb.png")}
-                    className="h-6 w-6"
-                  />
-                </View>
-                <View className="flex-row items-center">
-                  <Text className="text-white mr-2">5</Text>
-                  <Image
-                    source={require("../../public/honeycomb.png")}
-                    className="h-6 w-6"
-                  />
-                </View>
-              </View>
-            </>
-          ) : null}
+          {/* {!state.songId ? (
+            <ScoreBoard />
+          ) : null} */}
 
           <View className="flex-1">
             {state.songId ? (
