@@ -24,7 +24,7 @@ const screens = {
   LOGIN: 6,
 };
 
-function Starter({ setShowBottomNav }) {
+function Starter() {
   const stackNavigator = createNativeStackNavigator();
 
   return (
