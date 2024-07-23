@@ -9,9 +9,7 @@ import React, {
 import {
   View,
   Text,
-  TouchableOpacity,
   Image,
-  StatusBar,
   Animated,
   Dimensions,
   BackHandler,
