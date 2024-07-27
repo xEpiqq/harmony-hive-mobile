@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Image,
   Animated,
+  SafeAreaView,
   Dimensions,
   ScrollView,
 } from "react-native";
@@ -14,7 +15,6 @@ import MusicSheets from "@/components/MusicSheets";
 import { GrayArrow } from "../../assets/images";
 
 export default function SongScreen({ handleBackPress, scrollX, screenWidth }) {
-
   return (
     <View className="flex flex-col h-full">
       <TouchableOpacity
@@ -34,13 +34,15 @@ export default function SongScreen({ handleBackPress, scrollX, screenWidth }) {
       </TouchableOpacity>
       <MusicSheets scrollX={scrollX} screenWidth={screenWidth} />
 
-      <View className="w-full h-20 justify-center">
-        <View className="w-full h-20 flex justify-center bg-[#FFCE00]">
-          <AudioPlayer
-            // url="https://firebasestorage.googleapis.com/v0/b/harmonyhive-b4705.appspot.com/o/TUnrM8z359eWvkV6xnFY%2Fsongs%2F1rmeWWmcyiVwo0j4q399%2Faudio.mp3?alt=media&token=e9c82cee-2f73-4732-8eac-254737b0f16b" // Pass the download URL directly
-          />
+      {/* THe bottom of the screen should be FFCE00 */}
+      <SafeAreaView
+        style={{ backgroundColor: "#FFCE00", width: "100%" }}
+        edges={["bottom"]}
+      >
+        <View className="w-full h-16 flex justify-center bg-[#FFCE00]">
+          <AudioPlayer />
         </View>
-      </View>
+      </SafeAreaView>
     </View>
   );
 }
