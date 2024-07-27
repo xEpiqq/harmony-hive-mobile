@@ -27,7 +27,6 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import ActionButton from "@/components/ActionButton";
 import auth from "@react-native-firebase/auth";
 
-
 export default function StarterCreateAccount({ navigation, route }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -329,7 +328,7 @@ export default function StarterCreateAccount({ navigation, route }) {
               </Text>
               <View className="bg-[#F7F7F7] flex flex-row items-center justify-between rounded-b-xl border-gray-300 rounded-xl">
                 <TextInput
-                  className="p-2 pl-4 bg-[#F7F7F7] rounded-xl text-lg text-gray-700"
+                  className="flex flex-1 p-2 pl-4 bg-[#F7F7F7] rounded-xl text-lg text-gray-700"
                   placeholder="Email Address"
                   onChangeText={setUsername}
                   value={username}
@@ -339,7 +338,7 @@ export default function StarterCreateAccount({ navigation, route }) {
               </View>
               <View className="bg-[#F7F7F7] flex flex-row items-center justify-between rounded-b-xl border-gray-300 rounded-xl">
                 <TextInput
-                  className="p-2 pl-4 bg-[#F7F7F7] rounded-xl text-lg text-gray-700"
+                  className="p-2 flex flex-1 pl-4 bg-[#F7F7F7] rounded-xl text-lg text-gray-700"
                   placeholder="Password"
                   onChangeText={setPassword}
                   value={password}
@@ -349,6 +348,7 @@ export default function StarterCreateAccount({ navigation, route }) {
                 />
                 <TouchableOpacity
                   onPress={() => setPasswordVisible(!passwordVisible)}
+                  className="w-6 h-6 mr-3 flex"
                 >
                   <Image
                     className="w-6 h-6 mr-3 opacity-40"
@@ -358,7 +358,7 @@ export default function StarterCreateAccount({ navigation, route }) {
               </View>
               <View className="bg-[#F7F7F7] flex flex-row items-center justify-between rounded-b-xl border-gray-300 rounded-xl">
                 <TextInput
-                  className="p-2 pl-4 bg-[#F7F7F7] rounded-xl text-lg text-gray-700"
+                  className="p-2 flex flex-1 pl-4 bg-[#F7F7F7] rounded-xl text-lg text-gray-700"
                   placeholder="Confirm Password"
                   onChangeText={setConfirmPassword}
                   value={confirmPassword}
@@ -370,6 +370,7 @@ export default function StarterCreateAccount({ navigation, route }) {
                   onPress={() =>
                     setConfirmPasswordVisible(!confirmPasswordVisible)
                   }
+                  className="w-6 h-6 mr-3 flex"
                 >
                   <Image
                     className="w-6 h-6 mr-3 opacity-40"
