@@ -16,7 +16,7 @@
       "entitlements": {
         "com.apple.developer.applesignin": ["Default"]
       },
-      "buildNumber": "1.0.1"
+      "buildNumber": "1.0.2"
     },
     "name": "Harmony Hive",
     "scheme": "acme",
